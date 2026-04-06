@@ -7,9 +7,9 @@ import { z } from 'zod'
 
 // Hero banner schema
 const heroBannerSchema = z.object({
-  desktopImg: z.string().url().optional(),
-  mobileImg: z.string().url().optional(),
-  link: z.string().url().optional()
+  desktopImg: z.string().url().optional().or(z.literal('')),
+  mobileImg: z.string().url().optional().or(z.literal('')),
+  link: z.string().url().optional().or(z.literal(''))
 })
 
 const heroBannersArraySchema = z.array(heroBannerSchema)
@@ -57,6 +57,7 @@ export async function POST(request: NextRequest) {
     if (contentType && contentType.includes('multipart/form-data')) {
       const formData = await request.formData()
       
+      console.log(formData)
       // Extract banner data
       const bannerData = JSON.parse(formData.get('banner') as string)
       validatedBanner = heroBannerSchema.parse(bannerData)

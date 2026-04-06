@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import connectDB from '@/lib/db'
+import { StoreSettings } from '@/models/StoreSettings'
 import Product from '@/models/Product'
 import Category from '@/models/Category'
-import { StoreSettings } from '@/models/StoreSettings'
 
 // GET /api/homepage - Fetch all homepage data
 export async function GET(request: NextRequest) {
@@ -11,124 +11,116 @@ export async function GET(request: NextRequest) {
 
     // Fetch all data in parallel for better performance
     const [
-      heroBannersSettings,
-      testimonialsSettings,
-      newArrivalsProducts,
-      topSellingProducts,
-      categories,
-      browseByCategorySettings
+      settings,
+      categories
     ] = await Promise.all([
-      // Hero banners from store settings
-      StoreSettings.findOne().select('heroBanners').lean(),
+      // Store settings (hero banners, testimonials, product groups, etc.)
+      StoreSettings.findOne().lean(),
       
-      // Testimonials from store settings
-      StoreSettings.findOne().select('testimonials').lean(),
-      
-      // New arrivals (latest published products)
-      Product.find({ status: 'published' })
-        .populate('category', 'name slug')
-        .sort({ createdAt: -1 })
-        .limit(8)
-        .lean(),
-      
-      // Top selling products (you can modify this logic based on your needs)
-      Product.find({ status: 'published' })
-        .populate('category', 'name slug')
-        .sort({ updatedAt: -1 })
-        .limit(8)
-        .lean(),
-      
-      // Categories for browse section
+      // Categories for browse by category section
       Category.find({ isActive: true })
-        .select('name slug image description')
-        .sort({ name: 1 })
-        .lean(),
-      
-      // Browse by category settings
-      StoreSettings.findOne().select('browseByCategory').lean()
+        .sort({ name: 'asc' })
+        .lean()
     ])
 
-    // Transform products data for frontend consumption
-    const transformProducts = (products: any[]) => {
-      return products.map(product => {
-        const defaultVariant = product.variants?.find((v: any) => v.isActive) || product.variants?.[0]
-        return {
-          id: product._id.toString(),
-          name: product.title,
-          price: defaultVariant?.price || 0,
-          salePrice: defaultVariant?.cuttedPrice || null,
-          discount: defaultVariant?.cuttedPrice 
-            ? Math.round(((defaultVariant.price - defaultVariant.cuttedPrice) / defaultVariant.price) * 100)
-            : 0,
-          rating: 4.5, // You can add rating field to product model if needed
-          slug: product.slug,
-          mainImage: defaultVariant?.images?.[0] || '/placeholder-product.jpg',
-          hoverImage: defaultVariant?.images?.[1] || defaultVariant?.images?.[0] || '/placeholder-product.jpg',
-          category: product.category?.name || '',
-          categorySlug: product.category?.slug || '',
-          services: product.services || []
-        }
+    // Transform products to match frontend interface
+    const transformProduct = (product: any) => ({
+      id: product._id.toString(),
+      name: product.title,
+      price: product.variants[0]?.price || 0,
+      salePrice: product.variants[0]?.cuttedPrice,
+      discount: product.variants[0]?.cuttedPrice 
+        ? Math.round(((product.variants[0].cuttedPrice - product.variants[0].price) / product.variants[0].cuttedPrice) * 100)
+        : 0,
+      rating: 4.5, // Default rating - you can add rating field to product model later
+      slug: product.slug,
+      mainImage: product.variants[0]?.images[0] || '',
+      hoverImage: product.variants[0]?.images[1] || product.variants[0]?.images[0] || '',
+      category: product.category?.name || '',
+      categorySlug: product.category?.slug || '',
+      services: product.services || []
+    })
+
+    // Helper function to fetch products by slugs and transform them
+    const fetchAndTransformProducts = async (productSlugs: string[]) => {
+      if (!productSlugs || productSlugs.length === 0) return []
+      
+      // Filter out empty slugs
+      const validProductSlugs = productSlugs.filter(slug => slug && slug.trim() !== '')
+      
+      if (validProductSlugs.length === 0) return []
+      
+      const products = await Product.find({ 
+        slug: { $in: validProductSlugs }, 
+        status: 'published' 
       })
+        .populate('category', 'name slug')
+        .lean()
+      
+      return products.map(transformProduct)
     }
 
-    // Transform categories data
-    const transformCategories = (categories: any[], browseSettings: any) => {
-      if (browseSettings?.browseByCategory) {
-        // Use configured browse by categories
-        const browseCategories = []
-        for (let i = 1; i <= 5; i++) {
-          const categoryKey = `category${i}` as keyof typeof browseSettings.browseByCategory
-          const categoryData = browseSettings.browseByCategory[categoryKey]
-          if (categoryData?.categoryName) {
-            browseCategories.push({
-              name: categoryData.categoryName,
-              image: categoryData.categoryImage || '/placeholder-category.jpg',
-              slug: categoryData.categoryName.toLowerCase().replace(/\s+/g, '-')
-            })
-          }
-        }
-        return browseCategories
-      } else {
-        // Use all available categories
-        return categories.map(category => ({
-          name: category.name,
-          image: category.image || '/placeholder-category.jpg',
-          slug: category.slug,
-          description: category.description
-        }))
-      }
-    }
+    // Fetch products for both product groups
+    console.log('Product Group 1 Slugs:', settings?.productGroup1?.products)
+    console.log('Product Group 2 Slugs:', settings?.productGroup2?.products)
+    
+    const [productGroup1Products, productGroup2Products] = await Promise.all([
+      fetchAndTransformProducts(settings?.productGroup1?.products || []),
+      fetchAndTransformProducts(settings?.productGroup2?.products || [])
+    ])
 
-    // Transform testimonials data
-    const transformTestimonials = (testimonials: any) => {
-      if (!testimonials?.testimonials) {
-        return {
-          title: "What Our Customers Say",
-          description: "Real experiences from our valued customers",
-          reviews: []
-        }
-      }
+    // Transform categories to match frontend interface
+    const transformCategory = (category: any, index: number) => ({
+      name: category.name,
+      image: category.image || '',
+      slug: category.slug || '',
+      description: category.description || ''
+    })
 
-      return {
-        title: testimonials.testimonials.testimonialSectionHeading || "What Our Customers Say",
-        description: testimonials.testimonials.testimonialSectionDescription || "Real experiences from our valued customers",
-        reviews: (testimonials.testimonials.reviews || []).map((review: any, index: number) => ({
-          id: (index + 1).toString(),
+    // Prepare homepage data
+    const homepageData = {
+      heroBanners: settings?.heroBanners || [],
+      productGroup1: {
+        name: settings?.productGroup1?.name || 'Product Group 1',
+        description: settings?.productGroup1?.description || '',
+        products: productGroup1Products
+      },
+      productGroup2: {
+        name: settings?.productGroup2?.name || 'Product Group 2',
+        description: settings?.productGroup2?.description || '',
+        products: productGroup2Products
+      },
+      categories: [
+        // Use settings categories first, then fallback to database categories
+        ...(settings?.browseByCategory ? [
+          settings.browseByCategory.category1,
+          settings.browseByCategory.category2,
+          settings.browseByCategory.category3,
+          settings.browseByCategory.category4,
+          settings.browseByCategory.category5
+        ].filter(Boolean).map((cat, index) => ({
+          name: cat!.categoryName,
+          image: cat!.categoryImage || '',
+          slug: cat!.categoryName.toLowerCase().replace(/\s+/g, '-'),
+          description: ''
+        })) : []),
+        // Add database categories if no settings categories or to fill up to 5 categories
+        ...categories.slice(0, 5 - (settings?.browseByCategory ? 
+          Object.values(settings.browseByCategory).filter(Boolean).length : 0))
+          .map(transformCategory)
+      ].slice(0, 5), // Limit to 5 categories
+      testimonials: {
+        title: settings?.testimonials?.testimonialSectionHeading || 'What Our Customers Say',
+        description: settings?.testimonials?.testimonialSectionDescription || 'Read reviews from our satisfied customers',
+        reviews: (settings?.testimonials?.reviews || []).map((review: any) => ({
+          id: Math.random().toString(36).substr(2, 9), // Generate random ID
           name: review.customerName,
-          role: "Customer", // You can add role field if needed
+          role: 'Verified Customer', // Default role
           content: review.customerMessage,
           rating: review.customerRating,
-          avatar: review.customerProfile || `https://ui-avatars.com/api/?name=${encodeURIComponent(review.customerName)}&background=random`
+          avatar: review.customerProfile || ''
         }))
       }
-    }
-
-    const homepageData = {
-      heroBanners: heroBannersSettings?.heroBanners || [],
-      newArrivals: transformProducts(newArrivalsProducts),
-      topSelling: transformProducts(topSellingProducts),
-      categories: transformCategories(categories, browseByCategorySettings),
-      testimonials: transformTestimonials(testimonialsSettings)
     }
 
     return NextResponse.json({

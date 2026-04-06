@@ -37,10 +37,16 @@ interface Category {
   description?: string
 }
 
+interface ProductGroup {
+  name: string
+  description: string
+  products: Product[]
+}
+
 interface HomepageData {
   heroBanners: any[]
-  newArrivals: Product[]
-  topSelling: Product[]
+  productGroup1: ProductGroup
+  productGroup2: ProductGroup
   categories: Category[]
   testimonials: {
     title: string
@@ -64,6 +70,8 @@ async function getHomepageData(): Promise<HomepageData | null> {
     }
     
     const result = await response.json()
+
+    console.log(result)
     return result.success ? result.data : null
   } catch (error) {
     console.error('Error fetching homepage data:', error)
@@ -90,10 +98,10 @@ const Homepage = async () => {
       <FeaturedBanner banners={data.heroBanners} />
       <div className='px-4 py-4'>
         <FeaturedProductCardSlider
-          products={data.newArrivals}
-          title='New Arrivals'
-          description='Discover our latest collection'
-          collectionSlug='new-arrivals'
+          products={data.productGroup1.products}
+          title={data.productGroup1.name}
+          description={data.productGroup1.description}
+          collectionSlug='product-group-1'
           autoplay={true}
           autoplaySpeed={4000}
           showDots={true}
@@ -105,10 +113,10 @@ const Homepage = async () => {
       </div>
       <div className='px-4 py-4'>
         <FeaturedProductCardSlider
-          products={data.topSelling}
-          title='Top Selling'
-          description='Discover our best selling products'
-          collectionSlug='top-selling'
+          products={data.productGroup2.products}
+          title={data.productGroup2.name}
+          description={data.productGroup2.description}
+          collectionSlug='product-group-2'
           autoplay={true}
           autoplaySpeed={4000}
           showDots={true}

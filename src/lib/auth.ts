@@ -17,6 +17,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             return null
           }
 
+          // Check for super admin credentials first
+          if (
+            credentials.email === process.env.SUPER_ADMIN_EMAIL &&
+            credentials.password === process.env.SUPER_ADMIN_PASSWORD
+          ) {
+            return {
+              id: "super-admin",
+              email: process.env.SUPER_ADMIN_EMAIL,
+              name: "Super Admin",
+              role: "admin",
+              isVerified: true
+            }
+          }
+
           // Connect to database
           await connectDB()
 
