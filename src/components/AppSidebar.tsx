@@ -138,9 +138,6 @@ const managementItems = [
       },
     ],
   },
-];
-
-const contentItems = [
   {
     title: "Reviews",
     url: "/admin/reviews",
@@ -162,16 +159,6 @@ const contentItems = [
         icon: BarChart3,
       },
     ],
-  },
-  {
-    title: "Wishlist",
-    url: "/admin/wishlist",
-    icon: Heart,
-  },
-  {
-    title: "Cart Management",
-    url: "/admin/cart",
-    icon: ShoppingCart,
   },
 ];
 
@@ -215,50 +202,6 @@ const AppSidebar = () => {
           <SidebarGroupContent>
             <SidebarMenu>
               {managementItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  {item.subItems ? (
-                    <Collapsible>
-                      <CollapsibleTrigger asChild>
-                        <SidebarMenuButton>
-                          <item.icon />
-                          <span>{item.title}</span>
-                          <ChevronDown className="ml-auto" />
-                        </SidebarMenuButton>
-                      </CollapsibleTrigger>
-                      <CollapsibleContent>
-                        <SidebarMenuSub>
-                          {item.subItems.map((subItem) => (
-                            <SidebarMenuSubItem key={subItem.title}>
-                              <SidebarMenuSubButton asChild>
-                                <Link href={subItem.url}>
-                                  <subItem.icon />
-                                  <span>{subItem.title}</span>
-                                </Link>
-                              </SidebarMenuSubButton>
-                            </SidebarMenuSubItem>
-                          ))}
-                        </SidebarMenuSub>
-                      </CollapsibleContent>
-                    </Collapsible>
-                  ) : (
-                    <SidebarMenuButton asChild>
-                      <Link href={item.url}>
-                        <item.icon />
-                        <span>{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  )}
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel>Content</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {contentItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   {item.subItems ? (
                     <Collapsible>
