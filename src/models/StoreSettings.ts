@@ -7,6 +7,7 @@ const productGroupSchema = new mongoose.Schema({
 })
 
 const storeSettingsSchema = new mongoose.Schema({
+    announcementBar: [String],
     heroBanners: {
         type: [{ desktopImg: String, mobileImg: String, link: String }],
         default: []

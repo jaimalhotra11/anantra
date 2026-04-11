@@ -28,7 +28,7 @@ const Navbar = () => {
         <div className=" mx-auto px-4 sm:px-6 lg:px-20">
           <div className="max-w-7xl flex items-center justify-between h-16">
             {/* Logo */}
-            <div className="flex items-center">
+            <Link href={"/"} className="flex items-center">
               <Image
                 src="/logo.png"
                 alt="Anantra Fashion"
@@ -36,7 +36,7 @@ const Navbar = () => {
                 height={50}
                 className="h-12 w-auto"
               />
-            </div>
+            </Link>
 
 
 
@@ -109,7 +109,7 @@ const Navbar = () => {
             </button>
 
             {/* Logo */}
-            <div className="flex-1 flex justify-center">
+            <div className="flex-1 flex ml-4">
               <Image
                 src="/logo.png"
                 alt="Anantra Fashion"

@@ -1,6 +1,7 @@
 import React from 'react'
 import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin, ChevronRight } from 'lucide-react'
 import Image from 'next/image'
+import Link from 'next/link'
 
 const Footer = () => {
   return (
@@ -11,7 +12,7 @@ const Footer = () => {
           {/* Company Info */}
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
-              <div className="w-20 rounded-lg flex items-center justify-center">
+              <Link href="/" className="w-20 rounded-lg flex items-center justify-center">
                 <Image
                   src="/logo.png"
                   alt="ANANTRA Fashion"
@@ -19,7 +20,7 @@ const Footer = () => {
                   height={50}
                   className="object-contain"
                 />
-              </div>
+              </Link>
             </div>
             <p className="text-neutral-400 text-sm leading-relaxed">
               Your trusted destination for premium fashion and style. Discover the latest trends and timeless classics.

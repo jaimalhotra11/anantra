@@ -6,10 +6,17 @@ import { z } from 'zod'
 
 // Store settings update schema
 const storeSettingsSchema = z.object({
+  announcementBar: z.array(z.string()).default([]),
   heroBanners: z.array(z.object({
-    desktopImg: z.string().url().optional(),
-    mobileImg: z.string().url().optional(),
-    link: z.string().url().optional()
+    desktopImg: z.string().optional().refine((val) => !val || val === '' || /^https?:\/\/.*/.test(val), {
+      message: "Desktop image must be a valid URL or empty"
+    }),
+    mobileImg: z.string().optional().refine((val) => !val || val === '' || /^https?:\/\/.*/.test(val), {
+      message: "Mobile image must be a valid URL or empty"
+    }),
+    link: z.string().optional().refine((val) => !val || val === '' || /^https?:\/\/.*/.test(val), {
+      message: "Link must be a valid URL or empty"
+    })
   })).optional(),
   productGroup1: z.object({
     name: z.string().min(1, 'Product group name is required'),
@@ -90,6 +97,7 @@ export async function POST(request: NextRequest) {
     await connectDB()
 
     const body = await request.json()
+    console.log("body",body)
     const validatedData = storeSettingsSchema.parse(body)
 
     // Find existing settings or create new ones

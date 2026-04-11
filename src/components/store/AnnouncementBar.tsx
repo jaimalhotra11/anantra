@@ -3,27 +3,9 @@
 import React, { useState, useEffect } from 'react'
 import { X, ShoppingBag, Truck, Sparkles } from 'lucide-react'
 
-const AnnouncementBar = () => {
+const AnnouncementBar = ({announcements}:{announcements:string[]}) => {
   const [isVisible, setIsVisible] = useState(true)
   const [currentAnnouncement, setCurrentAnnouncement] = useState(0)
-
-  const announcements = [
-    {
-      icon: <Sparkles className="h-4 w-4" />,
-      text: "New Spring Collection Now Available - Up to 30% Off!",
-      link: "#"
-    },
-    {
-      icon: <Truck className="h-4 w-4" />,
-      text: "Free Shipping on Orders Over $50",
-      link: "#"
-    },
-    {
-      icon: <ShoppingBag className="h-4 w-4" />,
-      text: "Flash Sale: Limited Time Offers",
-      link: "#"
-    }
-  ]
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -42,9 +24,8 @@ const AnnouncementBar = () => {
           {/* Announcement Content */}
           <div className="flex-1 flex items-center justify-center space-x-3">
             <div className="flex items-center space-x-2 animate-pulse">
-              {announcements[currentAnnouncement].icon}
               <span className="text-sm font-sans font-medium whitespace-nowrap">
-                {announcements[currentAnnouncement].text}
+                {announcements[currentAnnouncement]}
               </span>
             </div>
           </div>

@@ -132,3 +132,60 @@ export function removeGuestCartItem(productId: string, variantId?: string) {
   writeGuestCart(filteredItems)
   return filteredItems
 }
+
+// Pending cart item for post-login addition
+const PENDING_CART_ITEM_KEY = 'ananta_pending_cart_item'
+
+export interface PendingCartItem {
+  productId: string
+  quantity: number
+  productName: string
+  productSlug: string
+  redirectPath: string
+}
+
+export function setPendingCartItem(item: PendingCartItem) {
+  if (typeof window === 'undefined') return
+  window.localStorage.setItem(PENDING_CART_ITEM_KEY, JSON.stringify(item))
+}
+
+export function getPendingCartItem(): PendingCartItem | null {
+  if (typeof window === 'undefined') return null
+
+  try {
+    const raw = window.localStorage.getItem(PENDING_CART_ITEM_KEY)
+    if (!raw) return null
+    return JSON.parse(raw)
+  } catch {
+    return null
+  }
+}
+
+export function clearPendingCartItem() {
+  if (typeof window === 'undefined') return
+  window.localStorage.removeItem(PENDING_CART_ITEM_KEY)
+}
+
+export async function addPendingItemToCart() {
+  const pendingItem = getPendingCartItem()
+  if (!pendingItem) return false
+
+  try {
+    const response = await fetch('/api/cart', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        productId: pendingItem.productId,
+        quantity: pendingItem.quantity,
+      }),
+    })
+
+    if (response.ok) {
+      clearPendingCartItem()
+      return true
+    }
+    return false
+  } catch {
+    return false
+  }
+}

@@ -4,7 +4,6 @@ import FeaturedProductCardSlider from '@/components/store/FeaturedProductSlider'
 import BrowseCategory from '@/components/store/BrowseCategory'
 import TestimonialSlider from '@/components/store/TestimonialSlider'
 import FeaturedBanner from '@/components/store/FeaturedBanner'
-import Footer from '@/components/ui/Footer'
 
 interface Product {
   id: string
@@ -44,6 +43,7 @@ interface ProductGroup {
 }
 
 interface HomepageData {
+  announcementBar: string[]
   heroBanners: any[]
   productGroup1: ProductGroup
   productGroup2: ProductGroup
@@ -95,6 +95,7 @@ const Homepage = async () => {
 
   return (
     <div className='w-full'>
+      <AnnouncementBar announcements={data.announcementBar} />
       <FeaturedBanner banners={data.heroBanners} />
       <div className='px-4 py-4'>
         <FeaturedProductCardSlider

@@ -72,7 +72,7 @@ const SignUpPage = () => {
   }
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex items-center justify-center w-full mx-auto px-4 py-4'>
+    <div className='min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex items-center justify-center w-full mx-auto px-4 py-4 sm:mt-0 -mt-16'>
       <div className='w-full max-w-md'>
         {/* Logo/Brand Section */}
         <div className='text-center mb-8'>

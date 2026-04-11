@@ -78,7 +78,7 @@ const FeaturedBanner = ({ banners = [] }: FeaturedBannerProps) => {
   }
 
   return (
-    <div className="relative w-full mx-auto max-w-7xl h-[600px] overflow-hidden bg-brand-primary">
+    <div className="relative w-full mx-auto max-w-[400px] md:max-w-[1080px] h-[600px] overflow-hidden bg-brand-primary">
       {/* Slides Container */}
       <div className="relative h-full">
         {slides.map((slide, index) => (

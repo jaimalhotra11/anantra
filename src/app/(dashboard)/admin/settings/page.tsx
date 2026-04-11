@@ -11,6 +11,7 @@ import {
   Package, 
   Grid3X3, 
   MessageSquare,
+  Volume2,
   Save,
   RefreshCw
 } from "lucide-react";
@@ -19,9 +20,11 @@ import HeroBannersManager from "@/components/settings/HeroBannersManager";
 import ProductGroupsManager from "@/components/settings/ProductGroupsManager";
 import TestimonialsManager from "@/components/settings/TestimonialsManager";
 import BrowseByCategoryManager from "@/components/settings/BrowseByCategoryManager";
+import AnnouncementBarManager from "@/components/settings/AnnouncementBarManager";
 
 interface StoreSettings {
   _id?: string;
+  announcementBar?: string[];
   heroBanners: Array<{
     desktopImg?: string;
     mobileImg?: string;
@@ -59,7 +62,7 @@ interface StoreSettings {
 const SettingsPage = () => {
   const [settings, setSettings] = useState<StoreSettings | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("hero-banners");
+  const [activeTab, setActiveTab] = useState("announcement-bar");
   const [saving, setSaving] = useState(false);
 
   const fetchSettings = async () => {
@@ -118,6 +121,7 @@ const SettingsPage = () => {
 
   const getTabIcon = (tabValue: string) => {
     const icons = {
+      "announcement-bar": Volume2,
       "hero-banners": ImageIcon,
       "product-groups": Package,
       "browse-category": Grid3X3,
@@ -127,6 +131,7 @@ const SettingsPage = () => {
   };
 
   const tabs = [
+    { value: "announcement-bar", label: "Announcement Bar", description: "Manage announcement messages" },
     { value: "hero-banners", label: "Hero Banners", description: "Manage homepage banners" },
     { value: "product-groups", label: "Product Groups", description: "Configure product showcases" },
     { value: "browse-category", label: "Browse by Category", description: "Setup category display" },
@@ -164,7 +169,17 @@ const SettingsPage = () => {
 
       {/* Settings Overview Cards */}
       {settings && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Announcements</CardTitle>
+              <Volume2 className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{settings.announcementBar?.length || 0}</div>
+              <p className="text-xs text-muted-foreground">Active announcements</p>
+            </CardContent>
+          </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Hero Banners</CardTitle>
@@ -225,7 +240,7 @@ const SettingsPage = () => {
             </div>
           ) : (
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full flex flex-col">
-              <TabsList className="grid w-full grid-cols-4">
+              <TabsList className="grid w-full grid-cols-5">
                 {tabs.map((tab) => {
                   const Icon = getTabIcon(tab.value);
                   return (
@@ -236,6 +251,21 @@ const SettingsPage = () => {
                   );
                 })}
               </TabsList>
+
+              <TabsContent value="announcement-bar" className="mt-6">
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-lg font-medium">Announcement Bar</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Manage announcements that will rotate in the announcement bar at the top of your store
+                    </p>
+                  </div>
+                  <AnnouncementBarManager 
+                    settings={settings} 
+                    onUpdate={handleSettingsUpdate}
+                  />
+                </div>
+              </TabsContent>
 
               <TabsContent value="hero-banners" className="mt-6">
                 <div className="space-y-4">

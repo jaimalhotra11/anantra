@@ -3,9 +3,10 @@
 import Image from 'next/image'
 import React, { useState } from 'react'
 import Link from 'next/link'
-import { Heart, Eye, ShoppingCart } from 'lucide-react'
+import { Heart, Eye, ShoppingCart, Loader2 } from 'lucide-react'
 import { useSession } from 'next-auth/react'
-import { addGuestCartItem } from '@/lib/storefront'
+import { addGuestCartItem, setPendingCartItem } from '@/lib/storefront'
+import { toast } from 'sonner'
 
 interface ProductCardProps {
   product: {
@@ -23,35 +24,63 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const [isHovered, setIsHovered] = useState(false)
+  const [isAddingToCart, setIsAddingToCart] = useState(false)
   const { data: session } = useSession()
 
   const handleQuickAdd = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
     event.stopPropagation()
 
-    if (!session?.user) {
-      addGuestCartItem({
-        productId: product.id,
-        quantity: 1,
-        priceAtTime: product.salePrice || product.price,
-        product: {
-          title: product.name,
-          slug: product.slug,
-          image: product.mainImage,
-          variantAttributes: [],
-        },
-      })
-      return
-    }
+    if (isAddingToCart) return
 
-    await fetch('/api/cart', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        productId: product.id,
-        quantity: 1,
-      }),
-    })
+    setIsAddingToCart(true)
+
+    try {
+      if (!session?.user) {
+        // Store the item to be added after login and redirect to login
+        setPendingCartItem({
+          productId: product.id,
+          quantity: 1,
+          productName: product.name,
+          productSlug: product.slug,
+          redirectPath: window.location.pathname,
+        })
+        
+        toast.info('Please sign in to add items to your cart')
+        
+        // Redirect to login page
+        setTimeout(() => {
+          window.location.href = '/auth/sign-in'
+        }, 1000)
+        
+        return
+      }
+
+      // Handle authenticated user cart
+      const response = await fetch('/api/cart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          productId: product.id,
+          quantity: 1,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to add item to cart')
+      }
+
+      toast.success(data.message || `${product.name} added to cart!`)
+    } catch (error) {
+      console.error('Error adding to cart:', error)
+      toast.error(error instanceof Error ? error.message : 'Failed to add item to cart')
+    } finally {
+      if (session?.user) {
+        setIsAddingToCart(false)
+      }
+    }
   }
 
   return (
@@ -79,9 +108,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           />
 
           {/* Action Buttons - Appear on Hover */}
-          <div className={`absolute top-3 right-3 flex flex-col space-y-2 transition-all duration-300 z-10 ${
-            isHovered ? 'opacity-100' : 'opacity-0'
-          }`}>
+          <div className={`absolute top-3 right-3 flex flex-col space-y-2 transition-all duration-300 z-10 ${isHovered ? 'opacity-100' : 'opacity-0'
+            }`}>
             <button className='p-2 bg-white rounded-full shadow-md hover:bg-neutral-100 transition-all duration-300 hover:scale-110'>
               <Heart className='h-4 w-4 text-neutral-600 hover:text-red-500' />
             </button>
@@ -93,21 +121,29 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           {/* Quick Add Button - Appears on Hover */}
           <button
             onClick={handleQuickAdd}
-            className={`absolute text-white cursor-pointer bottom-0 left-0 right-0 bg-(--brand-primary) font-bold py-3 px-4 transition-all duration-300 ease-out z-10 flex items-center justify-center space-x-2 ${
-            isHovered ? 'translate-y-0' : 'translate-y-full'
-          }`}
+            disabled={isAddingToCart}
+            className={`absolute text-white cursor-pointer bottom-0 left-0 right-0 bg-(--brand-primary) font-bold py-3 px-4 transition-all duration-300 ease-out z-10 flex items-center justify-center space-x-2 ${isHovered ? 'translate-y-0' : 'translate-y-full'
+              } ${isAddingToCart ? 'opacity-90 cursor-not-allowed' : ''}`}
           >
-            <ShoppingCart className='h-4 w-4' />
-            <span className='text-sm text-white font-medium'>Quick Add</span>
+            {isAddingToCart ? (
+              <>
+                <Loader2 className='h-4 w-4 animate-spin' />
+                <span className='text-sm text-white font-medium'>Adding...</span>
+              </>
+            ) : (
+              <>
+                <ShoppingCart className='h-4 w-4' />
+                <span className='text-sm text-white font-medium'>Quick Add</span>
+              </>
+            )}
           </button>
         </div>
 
         {/* Product Info */}
         <div className='p-4 space-y-3'>
           {/* Product Name */}
-          <h3 className={`text-sm font-medium line-clamp-2 transition-colors duration-300 ${
-            isHovered ? 'text-brand-primary' : 'text-neutral-800'
-          }`}>
+          <h3 className={`text-sm font-medium line-clamp-2 transition-colors duration-300 ${isHovered ? 'text-brand-primary' : 'text-neutral-800'
+            }`}>
             {product.name}
           </h3>
 
@@ -143,20 +179,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
           {/* Price */}
           <div className='flex items-center space-x-2'>
-            {product.salePrice ? (
-              <>
-                <span className='text-md font-semibold text-neutral-900'>
-                  Rs. {product.salePrice.toLocaleString('en-IN')}.00 
-                </span>
-                <span className='text-sm text-neutral-500 line-through'>
-                  Rs. {product.price.toLocaleString('en-IN')}.00 
-                </span>
-              </>
-            ) : (
-              <span className='text-md font-semibold text-neutral-900'>
-                Rs. {product.price.toLocaleString('en-IN')}.00 
-              </span>
-            )}
+            <span className='text-md font-semibold text-neutral-900'>
+              Rs. {product.price.toLocaleString('en-IN')}.00
+            </span>
           </div>
         </div>
       </Link>

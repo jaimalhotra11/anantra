@@ -20,7 +20,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -31,7 +30,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { FileUpload } from "@/components/ui/file-upload";
 import {
   Plus,
   Trash2,
@@ -44,6 +42,7 @@ import {
   Copy,
   Upload,
   X,
+  Loader2,
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -53,7 +52,7 @@ interface Variant {
   id: string;
   skuCode: string;
   attributes: { name: string; value: string }[];
-  images: string[];
+  images: File[];
   price: number;
   cuttedPrice?: number;
   trackQuantity: boolean;
@@ -101,6 +100,7 @@ const CreateProductPage = () => {
 
   const [categories, setCategories] = useState<any[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [uploadProgress, setUploadProgress] = useState<{ [key: string]: number }>({});
 
   const availableServices = [
     { id: "free-delivery", label: "Free Delivery" },
@@ -219,7 +219,7 @@ const CreateProductPage = () => {
         id: Date.now().toString(),
         skuCode: `${variant.skuCode}-copy`,
         attributes: variant.attributes.map(attr => ({ ...attr })),
-        images: [...variant.images],
+        images: [...variant.images], // Copy files
       };
 
       setFormData(prev => ({
@@ -231,8 +231,34 @@ const CreateProductPage = () => {
     }
   };
 
-  const handleImageUpload = (variantId: string, images: string[]) => {
-    updateVariant(variantId, { images });
+  const handleImageUpload = (variantId: string, files: FileList | null) => {
+    if (!files) return;
+    
+    const fileArray = Array.from(files);
+    const validFiles = fileArray.filter(file => {
+      const isValidType = file.type.startsWith('image/');
+      const isValidSize = file.size <= 5 * 1024 * 1024; // 5MB limit
+      
+      if (!isValidType) {
+        toast.error(`${file.name} is not a valid image file`);
+        return false;
+      }
+      if (!isValidSize) {
+        toast.error(`${file.name} is too large (max 5MB)`);
+        return false;
+      }
+      return true;
+    });
+
+    updateVariant(variantId, { images: [...formData.variants.find(v => v.id === variantId)?.images || [], ...validFiles] });
+  };
+
+  const removeImage = (variantId: string, imageIndex: number) => {
+    const variant = formData.variants.find(v => v.id === variantId);
+    if (variant) {
+      const newImages = variant.images.filter((_, index) => index !== imageIndex);
+      updateVariant(variantId, { images: newImages });
+    }
   };
 
   const fetchCategories = async () => {
@@ -314,17 +340,26 @@ const CreateProductPage = () => {
     setLoading(true);
 
     try {
-      const payload = {
+      // Create FormData for file upload
+      const formDataToSend = new FormData();
+      
+      // Add product data as JSON
+      const productData = {
         ...formData,
-        variants: formData.variants.map(({ id, ...variant }) => variant),
+        variants: formData.variants.map(({ id, images, ...variant }) => variant),
       };
+      formDataToSend.append('product', JSON.stringify(productData));
+
+      // Add images for each variant
+      formData.variants.forEach((variant) => {
+        variant.images.forEach((image, index) => {
+          formDataToSend.append(`variant_${variant.skuCode}_image_${index}`, image);
+        });
+      });
 
       const response = await fetch("/api/products", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
+        body: formDataToSend, // Don't set Content-Type header for FormData
       });
 
       const data = await response.json();
@@ -375,7 +410,7 @@ const CreateProductPage = () => {
           >
             {loading ? (
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <Loader2 className="w-4 h-4 animate-spin" />
                 Creating...
               </div>
             ) : (
@@ -395,7 +430,6 @@ const CreateProductPage = () => {
           <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
         <form onSubmit={handleSubmit} className="flex flex-col space-y-6">
-
 
           {/* Basic Info Tab */}
           <TabsContent value="basic" className="space-y-6 mt-6">
@@ -546,7 +580,7 @@ const CreateProductPage = () => {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label>Price (₹) *</Label>
+                        <Label>Price (INR) *</Label>
                         <Input
                           type="number"
                           step="0.01"
@@ -558,7 +592,7 @@ const CreateProductPage = () => {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label>Sale Price (₹)</Label>
+                        <Label>Sale Price (INR)</Label>
                         <Input
                           type="number"
                           step="0.01"
@@ -609,34 +643,20 @@ const CreateProductPage = () => {
                                     {commonAttr}
                                   </SelectItem>
                                 ))}
-                                <SelectItem value="custom">Custom...</SelectItem>
                               </SelectContent>
                             </Select>
 
-                            {attr.name === "custom" ? (
-                              <Input
-                                placeholder="Custom attribute name"
-                                value={attr.name === "custom" ? "" : attr.name}
-                                onChange={(e) => {
-                                  const newAttributes = [...variant.attributes];
-                                  newAttributes[attrIndex] = { ...attr, name: e.target.value };
-                                  updateVariant(variant.id, { attributes: newAttributes });
-                                }}
-                                className="flex-1"
-                              />
-                            ) : (
-                              <Input
-                                placeholder="Value"
-                                value={attr.value}
-                                onChange={(e) => {
-                                  const newAttributes = [...variant.attributes];
-                                  newAttributes[attrIndex] = { ...attr, value: e.target.value };
-                                  updateVariant(variant.id, { attributes: newAttributes });
-                                }}
-                                className="flex-1"
-                                required
-                              />
-                            )}
+                            <Input
+                              placeholder="Value"
+                              value={attr.value}
+                              onChange={(e) => {
+                                const newAttributes = [...variant.attributes];
+                                newAttributes[attrIndex] = { ...attr, value: e.target.value };
+                                updateVariant(variant.id, { attributes: newAttributes });
+                              }}
+                              className="flex-1"
+                              required
+                            />
 
                             {variant.attributes.length > 1 && (
                               <Button
@@ -656,11 +676,55 @@ const CreateProductPage = () => {
                     {/* Images */}
                     <div className="space-y-3">
                       <Label>Product Images</Label>
-                      <FileUpload
-                        images={variant.images}
-                        onImagesChange={(images) => handleImageUpload(variant.id, images)}
-                        maxImages={5}
-                      />
+                      <div className="space-y-4">
+                        <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6">
+                          <div className="text-center">
+                            <Upload className="mx-auto h-12 w-12 text-muted-foreground" />
+                            <div className="mt-4">
+                              <label htmlFor={`images-${variant.id}`} className="cursor-pointer">
+                                <span className="mt-2 block text-sm font-medium text-muted-foreground">
+                                  Click to upload or drag and drop
+                                </span>
+                                <span className="mt-1 block text-xs text-muted-foreground">
+                                  PNG, JPG, GIF up to 5MB each (max 5 images)
+                                </span>
+                              </label>
+                              <input
+                                id={`images-${variant.id}`}
+                                type="file"
+                                multiple
+                                accept="image/*"
+                                onChange={(e) => handleImageUpload(variant.id, e.target.files)}
+                                className="hidden"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {variant.images.length > 0 && (
+                          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                            {variant.images.map((image, imageIndex) => (
+                              <div key={imageIndex} className="relative group">
+                                <img
+                                  src={URL.createObjectURL(image)}
+                                  alt={`Product image ${imageIndex + 1}`}
+                                  className="w-full h-24 object-cover rounded-lg border"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => removeImage(variant.id, imageIndex)}
+                                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                  <X className="h-3 w-3" />
+                                </button>
+                                <div className="absolute bottom-1 left-1 bg-black/50 text-white text-xs px-1 py-0.5 rounded">
+                                  {image.name.length > 10 ? image.name.substring(0, 10) + '...' : image.name}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
 
                     {/* Stock Management */}

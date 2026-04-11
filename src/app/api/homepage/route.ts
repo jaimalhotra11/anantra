@@ -77,8 +77,12 @@ export async function GET(request: NextRequest) {
       description: category.description || ''
     })
 
+
+    console.log(settings.announcementBar)
+    
     // Prepare homepage data
     const homepageData = {
+      announcementBar: settings.announcementBar,
       heroBanners: settings?.heroBanners || [],
       productGroup1: {
         name: settings?.productGroup1?.name || 'Product Group 1',
