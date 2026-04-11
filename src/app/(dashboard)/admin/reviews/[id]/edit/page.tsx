@@ -36,6 +36,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+import CloudinaryUpload from "@/components/CloudinaryUpload";
 
 interface CustomerReview {
   _id: string;
@@ -386,18 +387,18 @@ const EditReviewPage = () => {
               </div>
             )}
             
-            {/* Note about image editing */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <div className="flex items-start gap-2">
-                <MessageSquare className="h-4 w-4 text-blue-600 mt-0.5" />
-                <div className="text-sm">
-                  <p className="font-medium text-blue-800">Note about Images</p>
-                  <p className="text-blue-700 mt-1">
-                    Currently, you can only remove existing images. To add new images, 
-                    customers would need to update their review through the customer interface.
-                  </p>
-                </div>
-              </div>
+            {/* Add New Images */}
+            <div className="space-y-2">
+              <Label>Add New Images</Label>
+              <CloudinaryUpload
+                onUploadComplete={(imageUrl) => handleImageUpload([...formData.images, imageUrl])}
+                onImageRemove={(imageUrl) => {
+                  const updatedImages = formData.images.filter(img => img !== imageUrl)
+                  handleImageUpload(updatedImages)
+                }}
+                existingImages={formData.images}
+                maxImages={5}
+              />
             </div>
           </CardContent>
         </Card>

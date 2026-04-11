@@ -62,6 +62,7 @@ const ProductPage = () => {
   const [showReviewForm, setShowReviewForm] = useState(false)
   const [newReview, setNewReview] = useState({ rating: 5, comment: '', name: '', email: '' })
   const [reviewImages, setReviewImages] = useState<File[]>([])
+  const [submittingReview, setSubmittingReview] = useState(false)
   
   // API states
   const [product, setProduct] = useState<Product | null>(null)
@@ -113,21 +114,6 @@ const ProductPage = () => {
   // Fetch reviews and related products when product is loaded
   useEffect(() => {
     if (!product?._id) return
-
-    const fetchReviews = async () => {
-      try {
-        setReviewsLoading(true)
-        const response = await fetch(`/api/customer-reviews?productId=${product._id}&limit=50`)
-        const result = await response.json()
-        if (result.success) {
-          setReviews(result.data)
-        }
-      } catch (err) {
-        console.error('Failed to fetch reviews:', err)
-      } finally {
-        setReviewsLoading(false)
-      }
-    }
 
     const fetchRelatedProducts = async () => {
       try {
@@ -305,11 +291,103 @@ const ProductPage = () => {
     setReviewImages(prev => prev.filter((_, i) => i !== index))
   }
 
-  const handleSubmitReview = () => {
-    // Handle review submission
-    setShowReviewForm(false)
-    setNewReview({ rating: 5, comment: '', name: '', email: '' })
-    setReviewImages([])
+  const fetchReviews = async () => {
+    if (!product?._id) return
+
+    try {
+      setReviewsLoading(true)
+      const response = await fetch(`/api/customer-reviews?productId=${product._id}&limit=50`)
+      const result = await response.json()
+      if (result.success) {
+        setReviews(result.data)
+      }
+    } catch (error) {
+      console.error('Error fetching reviews:', error)
+    } finally {
+      setReviewsLoading(false)
+    }
+  }
+
+  const handleSubmitReview = async () => {
+    if (!product?._id) return
+
+    try {
+      setSubmittingReview(true)
+
+      // Validate required fields
+      if (!newReview.comment.trim()) {
+        alert('Please write a review before submitting')
+        return
+      }
+
+      if (!session?.user && (!newReview.name.trim() || !newReview.email.trim())) {
+        alert('Please provide your name and email to submit a review')
+        return
+      }
+
+      // Upload images first
+      const uploadedImages: string[] = []
+      for (const file of reviewImages) {
+        const formData = new FormData()
+        formData.append('file', file)
+        
+        const uploadResponse = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData
+        })
+        
+        if (uploadResponse.ok) {
+          const uploadResult = await uploadResponse.json()
+          if (uploadResult.success) {
+            uploadedImages.push(uploadResult.url)
+          }
+        }
+      }
+
+      // Prepare review data
+      const reviewData = {
+        productId: product._id,
+        rating: newReview.rating,
+        review: newReview.comment,
+        images: uploadedImages,
+        ...(session?.user ? { userId: session.user.id } : {
+          user: {
+            fullName: newReview.name,
+            email: newReview.email,
+          }
+        })
+      }
+
+      // Submit review
+      const response = await fetch('/api/customer-reviews', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(reviewData)
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        // Refresh reviews list
+        await fetchReviews()
+        
+        // Reset form
+        setShowReviewForm(false)
+        setNewReview({ rating: 5, comment: '', name: '', email: '' })
+        setReviewImages([])
+        
+        alert('Review submitted successfully!')
+      } else {
+        alert(result.error || 'Failed to submit review')
+      }
+    } catch (error) {
+      console.error('Error submitting review:', error)
+      alert('Failed to submit review. Please try again.')
+    } finally {
+      setSubmittingReview(false)
+    }
   }
 
   // Loading state
@@ -828,9 +906,17 @@ const ProductPage = () => {
                 <div className="flex space-x-4 pt-4">
                   <button
                     onClick={handleSubmitReview}
-                    className="flex-1 bg-(--brand-primary) text-white py-3 px-6 rounded-lg hover:bg-(brand-primary)-hover transition-colors font-medium shadow-lg"
+                    disabled={submittingReview}
+                    className="flex-1 bg-(--brand-primary) text-white py-3 px-6 rounded-lg hover:bg-(brand-primary)-hover transition-colors font-medium shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
-                    Submit Review
+                    {submittingReview ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        Submitting...
+                      </>
+                    ) : (
+                      'Submit Review'
+                    )}
                   </button>
                   <button
                     onClick={() => setShowReviewForm(false)}
