@@ -70,6 +70,7 @@ const Navbar = () => {
                 <Link href="/products" className="text-[var(--brand-primary)] hover:text-[var(--brand-primary-hover)] transition-colors font-medium font-sans">On Sale</Link>
                 <Link href="/products" className="text-[var(--brand-primary)] hover:text-[var(--brand-primary-hover)] transition-colors font-medium font-sans">New Arrivals</Link>
                 <Link href="/categories" className="text-[var(--brand-primary)] hover:text-[var(--brand-primary-hover)] transition-colors font-medium font-sans">Categories</Link>
+                <Link href="/wholesale-enquiry" className="text-[var(--brand-primary)] hover:text-[var(--brand-primary-hover)] transition-colors font-medium font-sans">Wholesale</Link>
               </div>
               <form className="relative" onSubmit={handleSearch}>
                 <input
@@ -154,6 +155,7 @@ const Navbar = () => {
               <Link href="/products" className="block py-2 text-[--brand-primary] hover:text-[--brand-primary-hover] transition-colors font-medium font-sans">On Sale</Link>
               <Link href="/products" className="block py-2 text-[--brand-primary] hover:text-[--brand-primary-hover] transition-colors font-medium font-sans">New Arrivals</Link>
               <Link href="/categories" className="block py-2 text-[--brand-primary] hover:text-[--brand-primary-hover] transition-colors font-medium font-sans">Categories</Link>
+              <Link href="/wholesale-enquiry" className="block py-2 text-[--brand-primary] hover:text-[--brand-primary-hover] transition-colors font-medium font-sans">Wholesale</Link>
 
               {/* Mobile Search */}
               <div className="py-2">

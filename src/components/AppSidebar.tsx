@@ -15,6 +15,7 @@ import {
   BarChart3,
   SearchCode,
   FolderOpen,
+  Building2,
 } from "lucide-react";
 import {
   Sidebar,
@@ -159,6 +160,11 @@ const managementItems = [
         icon: BarChart3,
       },
     ],
+  },
+  {
+    title: "Wholesale Enquiries",
+    url: "/admin/wholesale-enquiries",
+    icon: Building2,
   },
 ];
 
