@@ -7,7 +7,7 @@ import { requireAdmin } from '@/lib/admin-auth'
 // GET single wholesale enquiry
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const authError = await requireAdmin()
@@ -20,7 +20,8 @@ export async function GET(
             await mongoose.connect(process.env.MONGODB_URI!)
         }
 
-        const enquiry = await WholesaleEnquiry.findById(params.id)
+        const { id } = await params
+        const enquiry = await WholesaleEnquiry.findById(id)
         
         if (!enquiry) {
             return NextResponse.json({
@@ -52,7 +53,7 @@ const updateEnquirySchema = z.object({
 
 export async function PUT(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         // Check if user is authenticated and is admin
@@ -61,6 +62,7 @@ export async function PUT(
             return authError
         }
 
+        const { id } = await params
         const body = await request.json()
         
         // Validate request body
@@ -72,7 +74,7 @@ export async function PUT(
         }
 
         const enquiry = await WholesaleEnquiry.findByIdAndUpdate(
-            params.id,
+            id,
             { $set: validatedData },
             { new: true, runValidators: true }
         )
@@ -114,7 +116,7 @@ export async function PUT(
 // DELETE wholesale enquiry
 export async function DELETE(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         // Check if user is authenticated and is admin
@@ -128,7 +130,8 @@ export async function DELETE(
             await mongoose.connect(process.env.MONGODB_URI!)
         }
 
-        const enquiry = await WholesaleEnquiry.findByIdAndDelete(params.id)
+        const { id } = await params
+        const enquiry = await WholesaleEnquiry.findByIdAndDelete(id)
         
         if (!enquiry) {
             return NextResponse.json({

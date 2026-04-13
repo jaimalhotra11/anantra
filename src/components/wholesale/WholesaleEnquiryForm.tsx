@@ -28,12 +28,12 @@ const wholesaleEnquirySchema = z.object({
         postalCode: z.string().min(1, 'Postal code is required'),
     }),
     taxId: z.string().optional(),
-    website: z.string().url().optional().or(z.literal('')),
+    website: z.string().url().optional().or(z.literal('')).optional(),
     productCategories: z.array(z.string()).min(1, 'At least one product category is required'),
     estimatedOrderVolume: z.enum(['small', 'medium', 'large', 'enterprise']),
     orderFrequency: z.enum(['weekly', 'monthly', 'quarterly', 'seasonal', 'one_time']),
     message: z.string().min(10, 'Message must be at least 10 characters').max(1000, 'Message cannot exceed 1000 characters'),
-    priority: z.enum(['low', 'medium', 'high']).default('medium'),
+    priority: z.enum(['low', 'medium', 'high']).optional(),
 })
 
 type WholesaleEnquiryForm = z.infer<typeof wholesaleEnquirySchema>

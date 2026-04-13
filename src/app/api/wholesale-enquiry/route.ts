@@ -18,7 +18,7 @@ const wholesaleEnquirySchema = z.object({
         postalCode: z.string().min(1, 'Postal code is required'),
     }),
     taxId: z.string().optional(),
-    website: z.string().url().optional().or(z.literal('')),
+    website: z.string().url().optional().or(z.literal('')).optional(),
     productCategories: z.array(z.string()).min(1, 'At least one product category is required'),
     estimatedOrderVolume: z.enum(['small', 'medium', 'large', 'enterprise']),
     orderFrequency: z.enum(['weekly', 'monthly', 'quarterly', 'seasonal', 'one_time']),
