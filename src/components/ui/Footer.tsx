@@ -22,7 +22,7 @@ const Footer = () => {
                 />
               </Link>
             </div>
-            <p className="text-neutral-400 text-sm leading-relaxed">
+            <p className="white text-sm leading-relaxed">
               Your trusted destination for premium fashion and style. Discover the latest trends and timeless classics.
             </p>
             <div className="flex space-x-3">
@@ -46,37 +46,37 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2">
               <li>
-                <a href="#" className="text-neutral-400 hover:text-white transition-colors flex items-center">
+                <a href="#" className="text-white hover:text-white transition-colors flex items-center">
                   <ChevronRight className="w-4 h-4 mr-2" />
                   About Us
                 </a>
               </li>
               <li>
-                <a href="#" className="text-neutral-400 hover:text-white transition-colors flex items-center">
+                <a href="#" className="white hover:text-white transition-colors flex items-center">
                   <ChevronRight className="w-4 h-4 mr-2" />
                   Contact Us
                 </a>
               </li>
               <li>
-                <a href="#" className="text-neutral-400 hover:text-white transition-colors flex items-center">
+                <a href="#" className="white hover:text-white transition-colors flex items-center">
                   <ChevronRight className="w-4 h-4 mr-2" />
                   Privacy Policy
                 </a>
               </li>
               <li>
-                <a href="#" className="text-neutral-400 hover:text-white transition-colors flex items-center">
+                <a href="#" className="white hover:text-white transition-colors flex items-center">
                   <ChevronRight className="w-4 h-4 mr-2" />
                   Terms & Conditions
                 </a>
               </li>
               <li>
-                <a href="#" className="text-white/80 hover:text-white transition-colors flex items-center">
+                <a href="#" className="text-white hover:text-white transition-colors flex items-center">
                   <ChevronRight className="w-4 h-4 mr-2" />
                   Wholesale Enquiry
                 </a>
               </li>
               <li>
-                <a href="#" className="text-white/80 hover:text-white transition-colors flex items-center">
+                <a href="#" className="text-white hover:text-white transition-colors flex items-center">
                   <ChevronRight className="w-4 h-4 mr-2" />
                   FAQ
                 </a>
@@ -89,31 +89,31 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-4">Categories</h3>
             <ul className="space-y-2">
               <li>
-                <a href="#" className="text-white/80 hover:text-white transition-colors flex items-center">
+                <a href="#" className="text-white hover:text-white transition-colors flex items-center">
                   <ChevronRight className="w-4 h-4 mr-2" />
                   New Arrivals
                 </a>
               </li>
               <li>
-                <a href="#" className="text-white/80 hover:text-white transition-colors flex items-center">
+                <a href="#" className="text-white hover:text-white transition-colors flex items-center">
                   <ChevronRight className="w-4 h-4 mr-2" />
                   Women's Fashion
                 </a>
               </li>
               <li>
-                <a href="#" className="text-white/80 hover:text-white transition-colors flex items-center">
+                <a href="#" className="text-white hover:text-white transition-colors flex items-center">
                   <ChevronRight className="w-4 h-4 mr-2" />
                   Men's Fashion
                 </a>
               </li>
               <li>
-                <a href="#" className="text-white/80 hover:text-white transition-colors flex items-center">
+                <a href="#" className="text-white hover:text-white transition-colors flex items-center">
                   <ChevronRight className="w-4 h-4 mr-2" />
                   Accessories
                 </a>
               </li>
               <li>
-                <a href="#" className="text-white/80 hover:text-white transition-colors flex items-center">
+                <a href="#" className="text-white hover:text-white transition-colors flex items-center">
                   <ChevronRight className="w-4 h-4 mr-2" />
                   Sale
                 </a>
@@ -126,20 +126,20 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-4">Contact Info</h3>
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
-                <MapPin className="w-5 h-5 text-white/80" />
-                <span className="text-white/80 text-sm">
+                <MapPin className="w-5 h-5 text-white" />
+                <span className="text-white text-sm">
                   123 Fashion Street, Style City, SC 12345
                 </span>
               </div>
               <div className="flex items-center space-x-3">
-                <Phone className="w-5 h-5 text-white/80" />
-                <span className="text-white/80 text-sm">
+                <Phone className="w-5 h-5 text-white" />
+                <span className="text-white text-sm">
                   +1 (555) 123-4567
                 </span>
               </div>
               <div className="flex items-center space-x-3">
-                <Mail className="w-5 h-5 text-white/80" />
-                <span className="text-white/80 text-sm">
+                <Mail className="w-5 h-5 text-white" />
+                <span className="text-white text-sm">
                   support@anantra-fashion.com
                 </span>
               </div>
