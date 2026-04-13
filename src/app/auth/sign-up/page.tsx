@@ -132,6 +132,7 @@ const SignUpPage = () => {
                   required
                   disabled={loading}
                 />
+                
               </div>
               <button type='submit' disabled={loading} className='w-full py-2.5 bg-primary text-white rounded-md disabled:opacity-60'>
                 {loading ? 'Creating account...' : 'Create account'}

@@ -1,6 +1,6 @@
 'use client'
 import Link from 'next/link'
-import React from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 interface Category {
   name: string
@@ -14,6 +14,9 @@ interface BrowseCategoryProps {
 }
 
 export default function BrowseCategory({ categories: propCategories }: BrowseCategoryProps) {
+  const [visibleItems, setVisibleItems] = useState<boolean[]>(new Array(5).fill(false))
+  const sectionRef = useRef<HTMLDivElement>(null)
+
   const baseCategories = propCategories.length > 0 ? propCategories.map(cat => ({
     title: cat.name,
     subtitle: cat.description || 'Discover our collection',
@@ -57,9 +60,50 @@ export default function BrowseCategory({ categories: propCategories }: BrowseCat
     categories.push(baseCategories[categories.length % baseCategories.length])
   }
 
+  // Intersection Observer for fade-in animations
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const index = parseInt(entry.target.getAttribute('data-index') || '0')
+            setTimeout(() => {
+              setVisibleItems(prev => {
+                const newVisible = [...prev]
+                newVisible[index] = true
+                return newVisible
+              })
+            }, index * 150) // Staggered delay: 150ms between each item
+          }
+        })
+      },
+      {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px' // Start animation when item is 50px into viewport
+      }
+    )
+
+    const currentSection = sectionRef.current
+    if (currentSection) {
+      const categoryElements = currentSection.querySelectorAll('[data-category-item]')
+      categoryElements.forEach((element) => {
+        observer.observe(element)
+      })
+    }
+
+    return () => {
+      if (currentSection) {
+        const categoryElements = currentSection.querySelectorAll('[data-category-item]')
+        categoryElements.forEach((element) => {
+          observer.unobserve(element)
+        })
+      }
+    }
+  }, [])
+
   return (
     <div className="bg-(--brand-background) px-6">
-      <section className="max-w-4xl mx-auto">
+      <section ref={sectionRef} className="max-w-4xl mx-auto">
         <div className="text-center mb-3">
           <h2
             className="text-3xl md:text-4xl font-serif font-bold text-neutral-800 mb-4"
@@ -74,10 +118,18 @@ export default function BrowseCategory({ categories: propCategories }: BrowseCat
         {/* Custom Grid Layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-[200px] lg:auto-rows-[150px]">
           {/* Item 1 - Tall left */}
-          <div className="col-span-1 md:col-span-1 lg:col-span-1 lg:row-span-2">
+          <div 
+            className="col-span-1 md:col-span-1 lg:col-span-1 lg:row-span-2"
+            data-category-item
+            data-index="0"
+          >
             <Link className="px-5 py-5" href={`/categories/${categories[0].slug}`}>
               <div
-                className="relative h-full group p-5 cursor-pointer overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 border border-neutral-200 hover:border-(--brand-primary)/50"
+                className={`relative h-full group p-5 cursor-pointer overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-500 border border-neutral-200 hover:border-(--brand-primary)/50 ${
+                  visibleItems[0] 
+                    ? 'opacity-100 translate-y-0' 
+                    : 'opacity-0 translate-y-8'
+                }`}
               >
                 {/* Background Image */}
                 <div className="absolute inset-0">
@@ -105,10 +157,18 @@ export default function BrowseCategory({ categories: propCategories }: BrowseCat
           </div>
 
           {/* Item 2 - Wide top right */}
-          <div className="col-span-1 md:col-span-1 lg:col-span-2 lg:row-span-1">
+          <div 
+            className="col-span-1 md:col-span-1 lg:col-span-2 lg:row-span-1"
+            data-category-item
+            data-index="1"
+          >
             <Link className="px-5 py-5" href={`/categories/${categories[1].slug}`}>
               <div
-                className="relative h-full group p-5 cursor-pointer overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 border border-neutral-200 hover:border-(--brand-primary)/50"
+                className={`relative h-full group p-5 cursor-pointer overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-500 border border-neutral-200 hover:border-(--brand-primary)/50 ${
+                  visibleItems[1] 
+                    ? 'opacity-100 translate-y-0' 
+                    : 'opacity-0 translate-y-8'
+                }`}
               >
                 {/* Background Image */}
                 <div className="absolute inset-0">
@@ -136,10 +196,18 @@ export default function BrowseCategory({ categories: propCategories }: BrowseCat
           </div>
 
           {/* Item 3 - Small square */}
-          <div className="col-span-1 md:col-span-1 lg:col-span-1 lg:row-span-1">
+          <div 
+            className="col-span-1 md:col-span-1 lg:col-span-1 lg:row-span-1"
+            data-category-item
+            data-index="2"
+          >
             <Link className="px-5 py-5" href={`/categories/${categories[2].slug}`}>
               <div
-                className="relative h-full group p-5 cursor-pointer overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 border border-neutral-200 hover:border-(--brand-primary)/50"
+                className={`relative h-full group p-5 cursor-pointer overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-500 border border-neutral-200 hover:border-(--brand-primary)/50 ${
+                  visibleItems[2] 
+                    ? 'opacity-100 translate-y-0' 
+                    : 'opacity-0 translate-y-8'
+                }`}
               >
                 {/* Background Image */}
                 <div className="absolute inset-0">
@@ -167,10 +235,18 @@ export default function BrowseCategory({ categories: propCategories }: BrowseCat
           </div>
 
           {/* Item 4 - Tall right */}
-          <div className="col-span-1 md:col-span-1 lg:col-span-1 lg:row-span-2">
+          <div 
+            className="col-span-1 md:col-span-1 lg:col-span-1 lg:row-span-2"
+            data-category-item
+            data-index="3"
+          >
             <Link className="px-5 py-5" href={`/categories/${categories[3].slug}`}>
               <div
-                className="relative h-full group p-5 cursor-pointer overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 border border-neutral-200 hover:border-(--brand-primary)/50"
+                className={`relative h-full group p-5 cursor-pointer overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-500 border border-neutral-200 hover:border-(--brand-primary)/50 ${
+                  visibleItems[3] 
+                    ? 'opacity-100 translate-y-0' 
+                    : 'opacity-0 translate-y-8'
+                }`}
               >
                 {/* Background Image */}
                 <div className="absolute inset-0">
@@ -198,10 +274,18 @@ export default function BrowseCategory({ categories: propCategories }: BrowseCat
           </div>
 
           {/* Item 5 - Wide bottom left */}
-          <div className="col-span-1 md:col-span-1 lg:col-span-2 lg:row-span-1">
+          <div 
+            className="col-span-1 md:col-span-1 lg:col-span-2 lg:row-span-1"
+            data-category-item
+            data-index="4"
+          >
             <Link className="px-5 py-5" href={`/categories/${categories[4].slug}`}>
               <div
-                className="relative h-full group p-5 cursor-pointer overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 border border-neutral-200 hover:border-(--brand-primary)/50"
+                className={`relative h-full group p-5 cursor-pointer overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-500 border border-neutral-200 hover:border-(--brand-primary)/50 ${
+                  visibleItems[4] 
+                    ? 'opacity-100 translate-y-0' 
+                    : 'opacity-0 translate-y-8'
+                }`}
               >
                 {/* Background Image */}
                 <div className="absolute inset-0">
