@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import SessionProvider from "@/components/providers/SessionProvider";
 import { cookies } from "next/headers";
+import { auth } from "@/lib/auth";
 import { abeezee, aclonica } from "@/lib/fonts";
 
 const lexendDeca = Lexend_Deca({
@@ -41,13 +42,14 @@ export default async function RootLayout({
 
   const cookieStore = await cookies()
   const defaultOpen = cookieStore.get("sidebar_state")?.value === "true"
+  const session = await auth()
   
   return (
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${abeezee.variable} ${aclonica.variable} ${lexendDeca.variable} ${cormorantGaramond.variable} ${geistSans.variable} ${geistMono.variable} antialiased flex`}
       >
-        <SessionProvider>
+        <SessionProvider session={session}>
           <ThemeProvider
             attribute="class"
             defaultTheme="system"

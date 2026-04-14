@@ -2,11 +2,13 @@
 
 import { SessionProvider as NextAuthSessionProvider, useSession } from "next-auth/react";
 import { ReactNode, useEffect } from "react";
+import { Session } from "next-auth";
 import { getPendingCartItem, addPendingItemToCart, clearPendingCartItem } from "@/lib/storefront";
 import { toast } from "sonner";
 
 interface SessionProviderProps {
   children: ReactNode;
+  session?: Session | null;
 }
 
 function PostLoginHandler() {
@@ -39,9 +41,9 @@ function PostLoginHandler() {
   return null;
 }
 
-export default function SessionProvider({ children }: SessionProviderProps) {
+export default function SessionProvider({ children, session }: SessionProviderProps) {
   return (
-    <NextAuthSessionProvider>
+    <NextAuthSessionProvider session={session}>
       <PostLoginHandler />
       {children}
     </NextAuthSessionProvider>

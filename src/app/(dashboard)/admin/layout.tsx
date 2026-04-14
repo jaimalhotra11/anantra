@@ -11,14 +11,16 @@ const AdminDashboardLayout = ({children}: {children: React.ReactNode}) => {
   const { data: session } = useSession()
   const router = useRouter()
 
-  // useEffect(() => {
-  //   if (!session) {
-  //     router.push('/login')
-  //   }
-  //   if(session?.user.role !== 'admin') {
-  //     router.push('/unauthorized')
-  //   }
-  // }, [session])
+  console.log("session", session)
+
+  useEffect(() => {
+    if (!session) {
+      router.push('/login')
+    }
+    if(session?.user.role !== 'admin') {
+      router.push('/unauthorized')
+    }
+  }, [])
   
   return (
     <div className="flex w-full">
