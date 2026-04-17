@@ -17,7 +17,11 @@ interface Product {
   services: string[]
   slug: string
   defaultVariantId?: string
-  category?: any
+  category?: {
+    _id: string
+    name: string
+    slug: string
+  } | string
   variants: {
     _id: string
     attributes: { name: string, value: string }[]
@@ -119,7 +123,7 @@ const ProductPage = () => {
       try {
         setRelatedLoading(true)
         // Fetch products from same category, excluding current product
-        const categoryParam = product.category ? `&category=${product.category}` : ''
+        const categoryParam = product.category ? `&category=${(product.category as any)._id || product.category}` : ''
         const response = await fetch(`/api/products?status=published${categoryParam}&limit=8`)
         const result = await response.json()
         if (result.success) {

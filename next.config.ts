@@ -10,15 +10,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol:"https",
-        hostname:"www.rijac.com",
-      },
-      {
-        protocol:"https",
-        hostname:"sanova-demo.myshopify.com",
-      },
-      {
-        protocol:"https",
-        hostname:"5.imimg.com",
+        hostname:"res.cloudinary.com",
       },
       {
         protocol:"https",
