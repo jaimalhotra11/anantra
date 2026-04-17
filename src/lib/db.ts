@@ -1,3 +1,4 @@
+import CategoryModel from '@/models/Category';
 import mongoose from 'mongoose';
 
 declare global {
@@ -18,6 +19,7 @@ if (!cached) {
 
 async function connectDB() {
   if (cached.conn) {
+    console.log('Using cached connection', CategoryModel.modelName);
     return cached.conn;
   }
 
@@ -27,12 +29,14 @@ async function connectDB() {
     };
 
     cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
+      console.log('Connected to database', CategoryModel.modelName);
       return mongoose;
     });
   }
 
   try {
     cached.conn = await cached.promise;
+    console.log('Database connection established', CategoryModel.modelName);
   } catch (e) {
     cached.promise = null;
     throw e;
