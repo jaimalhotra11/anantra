@@ -99,10 +99,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           )}
 
           {/* Product Image */}
-          <Image
+          <img
             src={isHovered && product.hoverImage ? product.hoverImage : product.mainImage}
             alt={product.name}
-            fill
             style={{ objectFit: 'cover' }}
             className='transition-all h-full w-full object-cover duration-500 ease-out'
           />
