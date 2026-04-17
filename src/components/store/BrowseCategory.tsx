@@ -147,9 +147,9 @@ export default function BrowseCategory({ categories: propCategories }: BrowseCat
                   <h3 className="text-white font-bold text-xl font-serif drop-shadow-lg">
                     {categories[0].title}
                   </h3>
-                  <p className="text-white/90 text-sm drop-shadow-md mb-4">
+                  {/* <p className="text-white/90 text-sm drop-shadow-md mb-4">
                     {categories[0].subtitle}
-                  </p>
+                  </p> */}
                 </div>
                 <div className="absolute inset-0 bg-(--brand-primary)/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg" />
               </div>
@@ -186,9 +186,6 @@ export default function BrowseCategory({ categories: propCategories }: BrowseCat
                   <h3 className="text-white font-bold text-xl font-serif drop-shadow-lg">
                     {categories[1].title}
                   </h3>
-                  <p className="text-white/90 text-sm drop-shadow-md mb-4">
-                    {categories[1].subtitle}
-                  </p>
                 </div>
                 <div className="absolute inset-0 bg-(--brand-primary)/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg" />
               </div>
@@ -225,9 +222,6 @@ export default function BrowseCategory({ categories: propCategories }: BrowseCat
                   <h3 className="text-white font-bold text-xl font-serif drop-shadow-lg">
                     {categories[2].title}
                   </h3>
-                  <p className="text-white/90 text-sm drop-shadow-md mb-4">
-                    {categories[2].subtitle}
-                  </p>
                 </div>
                 <div className="absolute inset-0 bg-(--brand-primary)/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg" />
               </div>
@@ -264,9 +258,6 @@ export default function BrowseCategory({ categories: propCategories }: BrowseCat
                   <h3 className="text-white font-bold text-xl font-serif drop-shadow-lg">
                     {categories[3].title}
                   </h3>
-                  <p className="text-white/90 text-sm drop-shadow-md mb-4">
-                    {categories[3].subtitle}
-                  </p>
                 </div>
                 <div className="absolute inset-0 bg-(--brand-primary)/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg" />
               </div>
@@ -303,9 +294,6 @@ export default function BrowseCategory({ categories: propCategories }: BrowseCat
                   <h3 className="text-white font-bold text-xl font-serif drop-shadow-lg">
                     {categories[4].title}
                   </h3>
-                  <p className="text-white/90 text-sm drop-shadow-md mb-4">
-                    {categories[4].subtitle}
-                  </p>
                 </div>
                 <div className="absolute inset-0 bg-(--brand-primary)/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg" />
               </div>

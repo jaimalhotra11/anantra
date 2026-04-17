@@ -95,7 +95,9 @@ const Homepage = async () => {
 
   return (
     <div className='w-full'>
-      <AnnouncementBar announcements={data.announcementBar} />
+      {data.announcementBar && data.announcementBar.length > 0 && (
+        <AnnouncementBar announcements={data.announcementBar} />
+      )}
       <FeaturedBanner banners={data.heroBanners} />
       <div className='px-4 py-4'>
         <FeaturedProductCardSlider

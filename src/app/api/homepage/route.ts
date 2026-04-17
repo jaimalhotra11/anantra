@@ -11,16 +11,10 @@ export async function GET(request: NextRequest) {
 
     // Fetch all data in parallel for better performance
     const [
-      settings,
-      categories
+      settings
     ] = await Promise.all([
       // Store settings (hero banners, testimonials, product groups, etc.)
-      StoreSettings.findOne().lean(),
-      
-      // Categories for browse by category section
-      Category.find({ isActive: true })
-        .sort({ name: 'asc' })
-        .lean()
+      StoreSettings.findOne().lean()
     ])
 
     // Transform products to match frontend interface
@@ -108,10 +102,13 @@ export async function GET(request: NextRequest) {
           slug: cat!.categoryName.toLowerCase().replace(/\s+/g, '-'),
           description: ''
         })) : []),
-        // Add database categories if no settings categories or to fill up to 5 categories
-        ...categories.slice(0, 5 - (settings?.browseByCategory ? 
-          Object.values(settings.browseByCategory).filter(Boolean).length : 0))
-          .map(transformCategory)
+        // Add empty categories to fill up to 5 categories with the same structure that expected in frontend
+        ...Array(5).fill(null).map((_, index) => ({
+          name: `Category ${index + 1}`,
+          image: 'https://www.svgrepo.com/show/508699/landscape-placeholder.svg',
+          slug: `category-${index + 1}`,
+          description: ''
+        }))
       ].slice(0, 5), // Limit to 5 categories
       testimonials: {
         title: settings?.testimonials?.testimonialSectionHeading || 'What Our Customers Say',
