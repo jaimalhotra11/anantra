@@ -7,6 +7,7 @@ import { Heart, Eye, ShoppingCart, Loader2 } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import { addGuestCartItem, setPendingCartItem } from '@/lib/storefront'
 import { toast } from 'sonner'
+import { useCart } from '@/contexts/CartContext'
 
 interface ProductCardProps {
   product: {
@@ -26,6 +27,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const [isHovered, setIsHovered] = useState(false)
   const [isAddingToCart, setIsAddingToCart] = useState(false)
   const { data: session } = useSession()
+  const { refreshCart } = useCart()
 
   const handleQuickAdd = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
@@ -73,6 +75,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       }
 
       toast.success(data.message || `${product.name} added to cart!`)
+      refreshCart()
     } catch (error) {
       console.error('Error adding to cart:', error)
       toast.error(error instanceof Error ? error.message : 'Failed to add item to cart')
@@ -90,7 +93,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       onMouseLeave={() => setIsHovered(false)}
     >
       <Link href={`/products/${product.slug}`}>
-        <div className='relative h-72 sm:h-80 flex items-center justify-center overflow-hidden'>
+        <div className='relative h-96 md:h-80 flex items-center justify-center overflow-hidden'>
           {/* Discount Badge */}
           {/* {product.discount && (
             <span className='absolute top-3 left-3 text-neutral-800 text-xs font-semibold px-3 py-1 rounded-full z-10 shadow-sm'>

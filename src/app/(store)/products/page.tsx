@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import ProductCard from '@/components/ui/ProductCard'
 import { toProductCardItem, type ProductListItem } from '@/lib/storefront'
+import { ArrowLeft } from 'lucide-react'
 
 interface CategoryOption {
   _id: string
@@ -103,8 +104,21 @@ const ProductsPage = () => {
 
   const productCards = useMemo(() => products.map(toProductCardItem), [products])
 
+  const handleBack = () => {
+    router.back()
+  }
+
   return (
     <div className='w-full px-4 md:px-8 lg:px-16 py-8 space-y-6'>
+      <div className='flex items-center gap-4'>
+        <button
+          onClick={handleBack}
+          className='flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors duration-200'
+        >
+          <ArrowLeft className='h-5 w-5' />
+          <span>Back</span>
+        </button>
+      </div>
       <div>
         <h1 className='text-3xl font-bold text-primary'>Shop Products</h1>
         <p className='text-muted-foreground mt-1'>Find the perfect fit for your style.</p>

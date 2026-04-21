@@ -77,7 +77,7 @@ const EditProductPage = () => {
   const router = useRouter();
   const params = useParams();
   const productId = params.id as string;
-  
+
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("basic");
@@ -119,6 +119,37 @@ const EditProductPage = () => {
     "Length", "Sleeve", "Neckline", "Brand", "Occasion"
   ];
 
+  const predefinedSizes = [
+    "Extra Small",
+    "Small",
+    "Medium",
+    "Large",
+    "Extra Large",
+    "XXL",
+    "XXXL",
+    "XXXXL",
+    "Custom"
+  ];
+
+  const predefinedColors = [
+    { name: "Black", hex: "#000000" },
+    { name: "White", hex: "#FFFFFF" },
+    { name: "Red", hex: "#FF0000" },
+    { name: "Blue", hex: "#0000FF" },
+    { name: "Green", hex: "#00FF00" },
+    { name: "Yellow", hex: "#FFFF00" },
+    { name: "Orange", hex: "#FFA500" },
+    { name: "Purple", hex: "#800080" },
+    { name: "Pink", hex: "#FFC0CB" },
+    { name: "Brown", hex: "#964B00" },
+    { name: "Gray", hex: "#808080" },
+    { name: "Navy", hex: "#000080" },
+    { name: "Maroon", hex: "#800000" },
+    { name: "Teal", hex: "#008080" },
+    { name: "Beige", hex: "#F5F5DC" },
+    { name: "Custom", hex: "" }
+  ];
+
   const generateSlug = (title: string) => {
     return title
       .toLowerCase()
@@ -126,6 +157,38 @@ const EditProductPage = () => {
       .replace(/\s+/g, "-")
       .replace(/-+/g, "-")
       .trim();
+  };
+
+  const normalizeVariantAttributes = (attributes: any[]) => {
+    return attributes.map((attr: any) => {
+      if (attr.name === "Size") {
+        const sizeValue = attr.value || "";
+        const isPredefinedSize = predefinedSizes.includes(sizeValue);
+        
+        if (!isPredefinedSize && sizeValue) {
+          return {
+            ...attr,
+            value: "Custom",
+            customSize: sizeValue
+          };
+        }
+      }
+      
+      if (attr.name === "Color") {
+        const colorValue = attr.value || "";
+        const isPredefinedColor = predefinedColors.some(color => color.name === colorValue);
+        
+        if (!isPredefinedColor && colorValue) {
+          return {
+            ...attr,
+            value: "Custom",
+            customColor: colorValue
+          };
+        }
+      }
+      
+      return attr;
+    });
   };
 
   const fetchProduct = async () => {
@@ -148,7 +211,7 @@ const EditProductPage = () => {
             id: variant._id || `variant-${index}`,
             _id: variant._id,
             skuCode: variant.skuCode || "",
-            attributes: variant.attributes || [{ name: "Size", value: "" }],
+            attributes: normalizeVariantAttributes(variant.attributes || [{ name: "Size", value: "" }]),
             images: variant.images || [],
             price: variant.price || 0,
             cuttedPrice: variant.cuttedPrice,
@@ -306,12 +369,12 @@ const EditProductPage = () => {
 
   const handleImageUpload = (variantId: string, files: FileList | null) => {
     if (!files) return;
-    
+
     const fileArray = Array.from(files);
     const validFiles = fileArray.filter(file => {
       const isValidType = file.type.startsWith('image/');
       const isValidSize = file.size <= 5 * 1024 * 1024; // 5MB limit
-      
+
       if (!isValidType) {
         toast.error(`${file.name} is not a valid image file`);
         return false;
@@ -394,15 +457,44 @@ const EditProductPage = () => {
 
     setLoading(true);
 
+    const processVariantForAPI = (variant: any) => {
+      return {
+        ...variant,
+        attributes: variant.attributes.map((attr: any) => {
+          // Handle custom sizes
+          if (attr.name === "Size" && attr.value === "Custom" && attr.customSize) {
+            return {
+              name: "Size",
+              value: attr.customSize
+            };
+          }
+          
+          // Handle custom colors
+          if (attr.name === "Color" && attr.value === "Custom" && attr.customColor) {
+            return {
+              name: "Color", 
+              value: attr.customColor
+            };
+          }
+          
+          // Return normal attribute for predefined options
+          return {
+            name: attr.name,
+            value: attr.value
+          };
+        })
+      };
+    };
+
     try {
       // Create FormData for file upload
       const formDataToSend = new FormData();
-      
+
       // Prepare product data for API
       const productData = {
         ...formData,
         variants: formData.variants.map(({ id, images, ...variant }) => ({
-          ...variant,
+          ...processVariantForAPI(variant),
           _id: variant._id, // Include _id for existing variants
           images: images.filter(img => typeof img === 'string') as string[], // Only send existing URLs
         })),
@@ -694,7 +786,7 @@ const EditProductPage = () => {
                       </div>
 
                       <div className="space-y-2">
-                        {variant.attributes.map((attr, attrIndex) => (
+                        {variant.attributes.map((attr: any, attrIndex) => (
                           <div key={attrIndex} className="flex items-center gap-2">
                             <Select
                               value={attr.name}
@@ -716,17 +808,95 @@ const EditProductPage = () => {
                               </SelectContent>
                             </Select>
 
-                            <Input
-                              placeholder="Value"
-                              value={attr.value}
-                              onChange={(e) => {
-                                const newAttributes = [...variant.attributes];
-                                newAttributes[attrIndex] = { ...attr, value: e.target.value };
-                                updateVariant(variant.id, { attributes: newAttributes });
-                              }}
-                              className="flex-1"
-                              required
-                            />
+                            {attr.name === "Size" ? (
+                              <div className="flex items-center gap-2 flex-1">
+                                <Select
+                                  value={attr.value}
+                                  onValueChange={(value) => {
+                                    const newAttributes = [...variant.attributes];
+                                    newAttributes[attrIndex] = { ...attr, value };
+                                    updateVariant(variant.id, { attributes: newAttributes });
+                                  }}
+                                >
+                                  <SelectTrigger className="flex-1">
+                                    <SelectValue placeholder="Select size" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {predefinedSizes.map((size) => (
+                                      <SelectItem key={size} value={size}>
+                                        {size}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                {attr.value === "Custom" && (
+                                  <Input
+                                    placeholder="Enter custom size"
+                                    value={attr.customSize || ""}
+                                    onChange={(e) => {
+                                      const newAttributes = [...variant.attributes];
+                                      newAttributes[attrIndex] = { ...attr, customSize: e.target.value };
+                                      updateVariant(variant.id, { attributes: newAttributes });
+                                    }}
+                                    className="w-[120px]"
+                                  />
+                                )}
+                              </div>
+                            ) : attr.name === "Color" ? (
+                              <div className="flex items-center gap-2 flex-1">
+                                <Select
+                                  value={attr.value}
+                                  onValueChange={(value) => {
+                                    const newAttributes = [...variant.attributes];
+                                    newAttributes[attrIndex] = { ...attr, value };
+                                    updateVariant(variant.id, { attributes: newAttributes });
+                                  }}
+                                >
+                                  <SelectTrigger className="flex-1">
+                                    <SelectValue placeholder="Select color" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {predefinedColors.map((color) => (
+                                      <SelectItem key={color.name} value={color.name}>
+                                        <div className="flex items-center gap-2">
+                                          {color.hex && (
+                                            <div
+                                              className="w-4 h-4 rounded border border-gray-300"
+                                              style={{ backgroundColor: color.hex }}
+                                            />
+                                          )}
+                                          {color.name}
+                                        </div>
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                {attr.value === "Custom" && (
+                                  <Input
+                                    placeholder="#000000"
+                                    value={attr.customColor || ""}
+                                    onChange={(e) => {
+                                      const newAttributes = [...variant.attributes];
+                                      newAttributes[attrIndex] = { ...attr, customColor: e.target.value };
+                                      updateVariant(variant.id, { attributes: newAttributes });
+                                    }}
+                                    className="w-[120px]"
+                                  />
+                                )}
+                              </div>
+                            ) : (
+                              <Input
+                                placeholder="Value"
+                                value={attr.value}
+                                onChange={(e) => {
+                                  const newAttributes = [...variant.attributes];
+                                  newAttributes[attrIndex] = { ...attr, value: e.target.value };
+                                  updateVariant(variant.id, { attributes: newAttributes });
+                                }}
+                                className="flex-1"
+                                required
+                              />
+                            )}
 
                             {variant.attributes.length > 1 && (
                               <Button
@@ -799,7 +969,7 @@ const EditProductPage = () => {
                                   <X className="h-3 w-3" />
                                 </button>
                                 <div className="absolute bottom-1 left-1 bg-black/50 text-white text-xs px-1 py-0.5 rounded">
-                                  {typeof image === 'string' 
+                                  {typeof image === 'string'
                                     ? (image.length > 10 ? image.substring(0, 10) + '...' : image)
                                     : (image.name.length > 10 ? image.name.substring(0, 10) + '...' : image.name)
                                   }

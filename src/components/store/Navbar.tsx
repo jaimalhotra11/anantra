@@ -6,10 +6,12 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
+import { useCart } from '@/contexts/CartContext'
 
 const Navbar = () => {
   const router = useRouter()
   const { data: session } = useSession()
+  const { itemCount } = useCart()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isShopDropdownOpen, setIsShopDropdownOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -28,7 +30,7 @@ const Navbar = () => {
         <div className=" mx-auto px-4 sm:px-6 lg:px-20">
           <div className="max-w-7xl flex items-center justify-between h-16">
             {/* Logo */}
-            <Link href={"/"} className="flex items-center">
+            <a href={"/"} className="flex items-center">
               <Image
                 src="/logo.png"
                 alt="Anantra Fashion"
@@ -36,7 +38,7 @@ const Navbar = () => {
                 height={50}
                 className="h-12 w-auto"
               />
-            </Link>
+            </a>
 
 
 
@@ -61,8 +63,11 @@ const Navbar = () => {
                       onMouseLeave={() => setIsShopDropdownOpen(false)}
                       className="absolute top-full left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2 z-50"
                     >
-                      <Link href="/categories" className="block px-4 py-2 text-sm text-[var(--brand-primary)] hover:bg-[var(--brand-primary)] hover:bg-opacity-10 font-sans">Women</Link>
-                      <Link href="/categories" className="block px-4 py-2 text-sm text-[var(--brand-primary)] hover:bg-[var(--brand-primary)] hover:bg-opacity-10 font-sans">Men</Link>
+                      <Link href="/categories/a-line-kurtis" className="block px-4 py-2 text-sm text-[var(--brand-primary)] hover:text-white hover:bg-[var(--brand-primary)] hover:bg-opacity-10 font-sans">A Line of Kurtis</Link>
+                      <Link href="/categories/co-ord-sets" className="block px-4 py-2 text-sm text-[var(--brand-primary)] hover:text-white hover:bg-[var(--brand-primary)] hover:bg-opacity-10 font-sans">Co-ord Sets</Link>
+                      <Link href="/categories/short-kurtis" className="block px-4 py-2 text-sm text-[var(--brand-primary)] hover:text-white hover:bg-[var(--brand-primary)] hover:bg-opacity-10 font-sans">Short Kurtis</Link>
+                      <Link href="/categories/long-kurtis" className="block px-4 py-2 text-sm text-[var(--brand-primary)] hover:text-white hover:bg-[var(--brand-primary)] hover:bg-opacity-10 font-sans">Long Kurtis</Link>
+                      <Link href="/categories/bottoms" className="block px-4 py-2 text-sm text-[var(--brand-primary)] hover:text-white hover:bg-[var(--brand-primary)] hover:bg-opacity-10 font-sans">Bottoms</Link>
                     </div>
                   )}
                 </div>
@@ -85,8 +90,13 @@ const Navbar = () => {
 
               {/* Icons */}
               <div className="flex items-center gap-1">
-                <Link href="/cart" className="p-2 text-(--brand-primary) hover:text-(--brand-primary-hover) transition-colors">
+                <Link href="/cart" className="relative p-2 text-(--brand-primary) hover:text-(--brand-primary-hover) transition-colors">
                   <ShoppingCart className="h-6 w-6" />
+                  {itemCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
+                      {itemCount > 99 ? '99+' : itemCount}
+                    </span>
+                  )}
                 </Link>
                 <Link href={session?.user ? '/account' : '/auth/sign-in'} className="p-2 text-[var(--brand-primary)] hover:text-[var(--brand-primary-hover)] transition-colors">
                   <User className="h-6 w-6" />
@@ -125,8 +135,13 @@ const Navbar = () => {
               <button type="button" className="p-2 text-[var(--brand-primary)] hover:text-[var(--brand-primary-hover)] transition-colors">
                 <Search className="h-5 w-5" />
               </button>
-              <Link href="/cart" className="p-2 text-[var(--brand-primary)] hover:text-[var(--brand-primary-hover)] transition-colors">
+              <Link href="/cart" className="relative p-2 text-[var(--brand-primary)] hover:text-[var(--brand-primary-hover)] transition-colors">
                 <ShoppingCart className="h-5 w-5" />
+                {itemCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center font-medium">
+                    {itemCount > 99 ? '99+' : itemCount}
+                  </span>
+                )}
               </Link>
               <Link href={session?.user ? '/account' : '/auth/sign-in'} className="p-2 text-[var(--brand-primary)] hover:text-[var(--brand-primary-hover)] transition-colors">
                 <User className="h-5 w-5" />

@@ -113,6 +113,37 @@ const CreateProductPage = () => {
     "Length", "Sleeve", "Neckline", "Brand", "Occasion"
   ];
 
+  const predefinedSizes = [
+    "Extra Small",
+    "Small",
+    "Medium",
+    "Large",
+    "Extra Large",
+    "XXL",
+    "XXXL",
+    "XXXXL",
+    "Custom"
+  ];
+
+  const predefinedColors = [
+    { name: "Black", hex: "#000000" },
+    { name: "White", hex: "#FFFFFF" },
+    { name: "Red", hex: "#FF0000" },
+    { name: "Blue", hex: "#0000FF" },
+    { name: "Green", hex: "#00FF00" },
+    { name: "Yellow", hex: "#FFFF00" },
+    { name: "Orange", hex: "#FFA500" },
+    { name: "Purple", hex: "#800080" },
+    { name: "Pink", hex: "#FFC0CB" },
+    { name: "Brown", hex: "#964B00" },
+    { name: "Gray", hex: "#808080" },
+    { name: "Navy", hex: "#000080" },
+    { name: "Maroon", hex: "#800000" },
+    { name: "Teal", hex: "#008080" },
+    { name: "Beige", hex: "#F5F5DC" },
+    { name: "Custom", hex: "" }
+  ];
+
   const generateSlug = (title: string) => {
     return title
       .toLowerCase()
@@ -233,12 +264,12 @@ const CreateProductPage = () => {
 
   const handleImageUpload = (variantId: string, files: FileList | null) => {
     if (!files) return;
-    
+
     const fileArray = Array.from(files);
     const validFiles = fileArray.filter(file => {
       const isValidType = file.type.startsWith('image/');
       const isValidSize = file.size <= 5 * 1024 * 1024; // 5MB limit
-      
+
       if (!isValidType) {
         toast.error(`${file.name} is not a valid image file`);
         return false;
@@ -342,7 +373,7 @@ const CreateProductPage = () => {
     try {
       // Create FormData for file upload
       const formDataToSend = new FormData();
-      
+
       // Add product data as JSON
       const productData = {
         ...formData,
@@ -624,7 +655,7 @@ const CreateProductPage = () => {
                       </div>
 
                       <div className="space-y-2">
-                        {variant.attributes.map((attr, attrIndex) => (
+                        {variant.attributes.map((attr: any, attrIndex) => (
                           <div key={attrIndex} className="flex items-center gap-2">
                             <Select
                               value={attr.name}
@@ -646,17 +677,95 @@ const CreateProductPage = () => {
                               </SelectContent>
                             </Select>
 
-                            <Input
-                              placeholder="Value"
-                              value={attr.value}
-                              onChange={(e) => {
-                                const newAttributes = [...variant.attributes];
-                                newAttributes[attrIndex] = { ...attr, value: e.target.value };
-                                updateVariant(variant.id, { attributes: newAttributes });
-                              }}
-                              className="flex-1"
-                              required
-                            />
+                            {attr.name === "Size" ? (
+                              <div className="flex items-center gap-2 flex-1">
+                                <Select
+                                  value={attr.value}
+                                  onValueChange={(value) => {
+                                    const newAttributes = [...variant.attributes];
+                                    newAttributes[attrIndex] = { ...attr, value };
+                                    updateVariant(variant.id, { attributes: newAttributes });
+                                  }}
+                                >
+                                  <SelectTrigger className="flex-1">
+                                    <SelectValue placeholder="Select size" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {predefinedSizes.map((size) => (
+                                      <SelectItem key={size} value={size}>
+                                        {size}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                {attr.value === "Custom" && (
+                                  <Input
+                                    placeholder="Enter custom size"
+                                    value={attr.customSize || ""}
+                                    onChange={(e) => {
+                                      const newAttributes = [...variant.attributes];
+                                      newAttributes[attrIndex] = { ...attr, customSize: e.target.value };
+                                      updateVariant(variant.id, { attributes: newAttributes });
+                                    }}
+                                    className="w-[120px]"
+                                  />
+                                )}
+                              </div>
+                            ) : attr.name === "Color" ? (
+                              <div className="flex items-center gap-2 flex-1">
+                                <Select
+                                  value={attr.value}
+                                  onValueChange={(value) => {
+                                    const newAttributes = [...variant.attributes];
+                                    newAttributes[attrIndex] = { ...attr, value };
+                                    updateVariant(variant.id, { attributes: newAttributes });
+                                  }}
+                                >
+                                  <SelectTrigger className="flex-1">
+                                    <SelectValue placeholder="Select color" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {predefinedColors.map((color) => (
+                                      <SelectItem key={color.name} value={color.name}>
+                                        <div className="flex items-center gap-2">
+                                          {color.hex && (
+                                            <div
+                                              className="w-4 h-4 rounded border border-gray-300"
+                                              style={{ backgroundColor: color.hex }}
+                                            />
+                                          )}
+                                          {color.name}
+                                        </div>
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                {attr.value === "Custom" && (
+                                  <Input
+                                    placeholder="#000000"
+                                    value={attr.customColor || ""}
+                                    onChange={(e) => {
+                                      const newAttributes = [...variant.attributes];
+                                      newAttributes[attrIndex] = { ...attr, customColor: e.target.value };
+                                      updateVariant(variant.id, { attributes: newAttributes });
+                                    }}
+                                    className="w-[120px]"
+                                  />
+                                )}
+                              </div>
+                            ) : (
+                              <Input
+                                placeholder="Value"
+                                value={attr.value}
+                                onChange={(e) => {
+                                  const newAttributes = [...variant.attributes];
+                                  newAttributes[attrIndex] = { ...attr, value: e.target.value };
+                                  updateVariant(variant.id, { attributes: newAttributes });
+                                }}
+                                className="flex-1"
+                                required
+                              />
+                            )}
 
                             {variant.attributes.length > 1 && (
                               <Button

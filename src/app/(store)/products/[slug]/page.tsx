@@ -1,13 +1,14 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import ProductGallery from '@/components/store/ProductGallery'
 import ProductCard from '@/components/ui/ProductCard'
-import { Heart, Share2, Truck, Shield, RotateCcw, Minus, Plus, ShoppingBag, ChevronDown, ChevronUp, Star, X, Ruler, Package, Clock, ArrowRight, Camera, Upload } from 'lucide-react'
+import { Heart, Share2, Truck, Shield, RotateCcw, Minus, Plus, ShoppingBag, ChevronDown, ChevronUp, Star, X, Ruler, Package, Clock, ArrowRight, Camera, Upload, ArrowLeft } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import { addGuestCartItem } from '@/lib/storefront'
+import { useCart } from '@/contexts/CartContext'
 
 interface Product {
   _id: string
@@ -53,7 +54,13 @@ interface Review {
 const ProductPage = () => {
   const params = useParams()
   const slug = params.slug as string
+  const router = useRouter()
   const { data: session } = useSession()
+  const { refreshCart } = useCart()
+
+  const handleBack = () => {
+    router.back()
+  }
   
   const [quantity, setQuantity] = useState(1)
   const [selectedVariant, setSelectedVariant] = useState('')
@@ -261,6 +268,7 @@ const ProductPage = () => {
           },
         })
         setCartMessage('Added to cart')
+        refreshCart()
         return
       }
 
@@ -279,6 +287,7 @@ const ProductPage = () => {
         throw new Error(result.error || 'Failed to add to cart')
       }
       setCartMessage('Added to cart')
+      refreshCart()
     } catch (cartError) {
       setCartMessage(cartError instanceof Error ? cartError.message : 'Failed to add to cart')
     } finally {
@@ -429,6 +438,15 @@ const ProductPage = () => {
   return (
     <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
+        <div className='flex items-center gap-4 mb-6'>
+          <button
+            onClick={handleBack}
+            className='flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors duration-200'
+          >
+            <ArrowLeft className='h-5 w-5' />
+            <span>Back</span>
+          </button>
+        </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
 
           {/* Left Column - Product Gallery */}

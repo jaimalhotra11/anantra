@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import SessionProvider from "@/components/providers/SessionProvider";
+import { CartProvider } from "@/contexts/CartContext";
 import { cookies } from "next/headers";
 import { auth } from "@/lib/auth";
 import { abeezee, aclonica } from "@/lib/fonts";
@@ -57,7 +58,9 @@ export default async function RootLayout({
             disableTransitionOnChange
           >
             <SidebarProvider defaultOpen={defaultOpen}>
-              {children}
+              <CartProvider>
+                {children}
+              </CartProvider>
             </SidebarProvider>
           </ThemeProvider>
         </SessionProvider>
