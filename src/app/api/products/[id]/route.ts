@@ -103,14 +103,8 @@ export async function PUT(
             for (let i = 0; i < 10; i++) { // Support up to 10 images per variant
               const imageFile = formData.get(`variant_${variant.skuCode}_image_${i}`) as File
               if (imageFile && imageFile.size > 0 && variant.skuCode) {
-                const uploadResult = await uploadImage(imageFile, {
-                  folder: 'clothing-ecommerce/products',
-                  transformation: {
-                    width: 800,
-                    height: 800,
-                    crop: 'fill',
-                    quality: 'auto'
-                  }
+                  const uploadResult = await uploadImage(imageFile, {
+                    folder: 'clothing-ecommerce/products',
                 })
                 
                 if (uploadResult.success && uploadResult.url) {

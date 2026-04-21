@@ -83,12 +83,6 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       if (categoryImageFile && categoryImageFile.size > 0) {
         const uploadResult = await uploadImage(categoryImageFile, {
           folder: 'clothing-ecommerce/categories',
-          transformation: {
-            width: 400,
-            height: 400,
-            crop: 'fill',
-            quality: 'auto'
-          }
         })
         
         if (uploadResult.success && uploadResult.url) {

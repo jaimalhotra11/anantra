@@ -92,11 +92,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       <Link href={`/products/${product.slug}`}>
         <div className='relative h-72 sm:h-80 flex items-center justify-center overflow-hidden'>
           {/* Discount Badge */}
-          {product.discount && (
+          {/* {product.discount && (
             <span className='absolute top-3 left-3 text-neutral-800 text-xs font-semibold px-3 py-1 rounded-full z-10 shadow-sm'>
               -{product.discount}%
             </span>
-          )}
+          )} */}
 
           {/* Product Image */}
           <img

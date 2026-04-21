@@ -188,12 +188,6 @@ export async function POST(request: NextRequest) {
             if (imageFile && imageFile.size > 0 && variant.skuCode) {
               const uploadResult = await uploadImage(imageFile, {
                 folder: 'clothing-ecommerce/products',
-                transformation: {
-                  width: 800,
-                  height: 800,
-                  crop: 'fill',
-                  quality: 'auto'
-                }
               })
               
               if (uploadResult.success && uploadResult.url) {

@@ -97,7 +97,7 @@ const FeaturedBanner = ({ banners = [] }: FeaturedBannerProps) => {
                 <img 
                   src={slide.mobileImage} 
                   alt={slide.title}
-                  className="w-full h-full object-cover transition-transform duration-8000 ease-out"
+                  className="w-full h-full object-contain transition-transform duration-8000 ease-out"
                   style={{
                     transform: index === currentSlide ? 'scale(1)' : 'scale(1.1)',
                   }}

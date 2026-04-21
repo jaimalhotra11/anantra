@@ -46,12 +46,6 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       if (desktopImgFile && desktopImgFile.size > 0) {
         const uploadResult = await uploadImage(desktopImgFile, {
           folder: 'clothing-ecommerce/hero-banners',
-          transformation: {
-            width: 1920,
-            height: 600,
-            crop: 'fill',
-            quality: 'auto'
-          }
         })
         
         if (uploadResult.success && uploadResult.url) {
@@ -66,12 +60,6 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       if (mobileImgFile && mobileImgFile.size > 0) {
         const uploadResult = await uploadImage(mobileImgFile, {
           folder: 'clothing-ecommerce/hero-banners',
-          transformation: {
-            width: 768,
-            height: 400,
-            crop: 'fill',
-            quality: 'auto'
-          }
         })
         
         if (uploadResult.success && uploadResult.url) {

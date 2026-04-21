@@ -65,12 +65,6 @@ export async function POST(request: NextRequest) {
       if (customerProfileFile && customerProfileFile.size > 0) {
         const uploadResult = await uploadImage(customerProfileFile, {
           folder: 'clothing-ecommerce/testimonials',
-          transformation: {
-            width: 200,
-            height: 200,
-            crop: 'fill',
-            quality: 'auto'
-          }
         })
         
         if (uploadResult.success && uploadResult.url) {
