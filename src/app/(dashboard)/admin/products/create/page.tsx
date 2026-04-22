@@ -69,6 +69,7 @@ interface ProductFormData {
   category?: string;
   defaultVariantId: string;
   variants: Variant[];
+  selectedBulkSizes: string[];
 }
 
 const CreateProductPage = () => {
@@ -96,6 +97,7 @@ const CreateProductPage = () => {
         isActive: true,
       },
     ],
+    selectedBulkSizes: [],
   });
 
   const [categories, setCategories] = useState<any[]>([]);
@@ -180,6 +182,53 @@ const CreateProductPage = () => {
       variants: [...prev.variants, newVariant],
     }));
   }, [formData.variants]);
+
+  const createBulkSizeVariants = () => {
+    if (formData.selectedBulkSizes.length === 0) {
+      toast.error("Please select at least one size");
+      return;
+    }
+
+    const templateVariant = formData.variants[0];
+    if (!templateVariant) {
+      toast.error("No template variant found");
+      return;
+    }
+
+    const newVariants: Variant[] = formData.selectedBulkSizes.map((size, index) => {
+      const variantId = Date.now().toString() + index;
+      const sizeAttribute = { name: "Size", value: size };
+      const otherAttributes = templateVariant.attributes.filter(attr => attr.name !== "Size");
+      
+      return {
+        id: variantId,
+        skuCode: `${templateVariant.skuCode || 'SKU'}-${size.toLowerCase().replace(/\s+/g, '-')}`,
+        attributes: [sizeAttribute, ...otherAttributes],
+        images: [...templateVariant.images],
+        price: templateVariant.price,
+        cuttedPrice: templateVariant.cuttedPrice,
+        trackQuantity: templateVariant.trackQuantity,
+        stockQuantity: templateVariant.stockQuantity,
+        isActive: templateVariant.isActive,
+      };
+    });
+
+    setFormData(prev => ({
+      ...prev,
+      variants: newVariants,
+      defaultVariantId: newVariants[0]?.id || "",
+      selectedBulkSizes: [],
+    }));
+
+    toast.success(`Created ${newVariants.length} variants for selected sizes`);
+  };
+
+  const updateSelectedBulkSizes = (sizes: string[]) => {
+    setFormData(prev => ({
+      ...prev,
+      selectedBulkSizes: sizes,
+    }));
+  };
 
   const removeVariant = (variantId: string) => {
     if (formData.variants.length <= 1) {
@@ -378,6 +427,7 @@ const CreateProductPage = () => {
       const productData = {
         ...formData,
         variants: formData.variants.map(({ id, images, ...variant }) => variant),
+        selectedBulkSizes: undefined, // Remove bulk sizes from submission
       };
       formDataToSend.append('product', JSON.stringify(productData));
 
@@ -570,6 +620,8 @@ const CreateProductPage = () => {
                 Add Variant
               </Button>
             </div>
+
+           
 
             <div className="space-y-4">
               {formData.variants.map((variant, index) => (
@@ -879,6 +931,66 @@ const CreateProductPage = () => {
                 </Card>
               ))}
             </div>
+
+             {/* Bulk Size Creation */}
+            <Card className="border-dashed">
+              <CardHeader>
+                <CardTitle className="text-base">Quick Size Variant Creation</CardTitle>
+                <CardDescription>
+                  Select multiple sizes to create variants automatically using the first variant as template
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-3">
+                  <Label className="text-sm font-medium">Select Sizes</Label>
+                  <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
+                    {predefinedSizes.map((size) => (
+                      <div key={size} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`bulk-size-${size}`}
+                          checked={formData.selectedBulkSizes.includes(size)}
+                          onCheckedChange={(checked) => {
+                            const newSizes = checked
+                              ? [...formData.selectedBulkSizes, size]
+                              : formData.selectedBulkSizes.filter(s => s !== size);
+                            updateSelectedBulkSizes(newSizes);
+                          }}
+                        />
+                        <Label htmlFor={`bulk-size-${size}`} className="text-sm">
+                          {size}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                {formData.selectedBulkSizes.length > 0 && (
+                  <div className="flex items-center gap-2 pt-2">
+                    <Button
+                      type="button"
+                      onClick={createBulkSizeVariants}
+                      className="text-sm"
+                    >
+                      <Package className="mr-2 h-4 w-4" />
+                      Create {formData.selectedBulkSizes.length} Size Variants
+                    </Button>
+                    <span className="text-sm text-muted-foreground">
+                      This will replace current variants
+                    </span>
+                  </div>
+                )}
+                
+                <div className="text-sm text-muted-foreground bg-muted p-3 rounded">
+                  <p className="font-medium mb-1">💡 How it works:</p>
+                  <ul className="list-disc list-inside space-y-1">
+                    <li>Configure your first variant with images, price, colors, etc.</li>
+                    <li>Select multiple sizes above</li>
+                    <li>Click "Create X Size Variants" to auto-generate all variants</li>
+                    <li>Images and other properties will be copied to all variants</li>
+                  </ul>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Settings Tab */}
