@@ -35,6 +35,7 @@ export interface Product {
   slug: string,
   defaultVariantId?: string,
   category?: string,
+  sizeChartImage?: string,
   variants: {
       _id: string,
       attributes: { name: string, value: string }[],

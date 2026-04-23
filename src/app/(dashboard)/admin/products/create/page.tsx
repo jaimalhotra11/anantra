@@ -67,6 +67,7 @@ interface ProductFormData {
   services: string[];
   slug: string;
   category?: string;
+  sizeChartImage?: File;
   defaultVariantId: string;
   variants: Variant[];
   selectedBulkSizes: string[];
@@ -341,6 +342,26 @@ const CreateProductPage = () => {
     }
   };
 
+  const handleSizeChartImageUpload = (file: File) => {
+    const isValidType = file.type.startsWith('image/');
+    const isValidSize = file.size <= 5 * 1024 * 1024; // 5MB limit
+
+    if (!isValidType) {
+      toast.error("Size chart must be an image file");
+      return;
+    }
+    if (!isValidSize) {
+      toast.error("Size chart image is too large (max 5MB)");
+      return;
+    }
+
+    setFormData(prev => ({ ...prev, sizeChartImage: file }));
+  };
+
+  const removeSizeChartImage = () => {
+    setFormData(prev => ({ ...prev, sizeChartImage: undefined }));
+  };
+
   const fetchCategories = async () => {
     try {
       setCategoriesLoading(true);
@@ -428,8 +449,14 @@ const CreateProductPage = () => {
         ...formData,
         variants: formData.variants.map(({ id, images, ...variant }) => variant),
         selectedBulkSizes: undefined, // Remove bulk sizes from submission
+        sizeChartImage: undefined, // Remove file object, will be added separately
       };
       formDataToSend.append('product', JSON.stringify(productData));
+
+      // Add size chart image if present
+      if (formData.sizeChartImage) {
+        formDataToSend.append('sizeChartImage', formData.sizeChartImage);
+      }
 
       // Add images for each variant
       formData.variants.forEach((variant) => {
@@ -576,6 +603,59 @@ const CreateProductPage = () => {
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Size Chart Image</Label>
+                  <div className="space-y-4">
+                    <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6">
+                      <div className="text-center">
+                        <Upload className="mx-auto h-12 w-12 text-muted-foreground" />
+                        <div className="mt-4">
+                          <label htmlFor="sizeChartImage" className="cursor-pointer">
+                            <span className="mt-2 block text-sm font-medium text-muted-foreground">
+                              Click to upload size chart image
+                            </span>
+                            <span className="mt-1 block text-xs text-muted-foreground">
+                              PNG, JPG, GIF up to 5MB
+                            </span>
+                          </label>
+                          <input
+                            id="sizeChartImage"
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                handleSizeChartImageUpload(file);
+                              }
+                            }}
+                            className="hidden"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {formData.sizeChartImage && (
+                      <div className="relative group">
+                        <img
+                          src={URL.createObjectURL(formData.sizeChartImage)}
+                          alt="Size chart"
+                          className="w-full h-48 object-contain rounded-lg border"
+                        />
+                        <button
+                          type="button"
+                          onClick={removeSizeChartImage}
+                          className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                        <div className="absolute bottom-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
+                          Size Chart: {formData.sizeChartImage.name.length > 20 ? formData.sizeChartImage.name.substring(0, 20) + '...' : formData.sizeChartImage.name}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div className="space-y-2">

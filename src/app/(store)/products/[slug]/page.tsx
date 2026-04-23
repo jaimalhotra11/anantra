@@ -23,6 +23,7 @@ interface Product {
     name: string
     slug: string
   } | string
+  sizeChartImage?: string
   variants: {
     _id: string
     attributes: { name: string, value: string }[]
@@ -479,6 +480,19 @@ const ProductPage = () => {
               </div>
             </div>
 
+             {/* Size Chart Button */}
+            {product.sizeChartImage && (
+              <div className="flex justify-start">
+                <button
+                  onClick={() => setShowSizeChart(true)}
+                  className="flex items-center space-x-2 text-primary border-b-2 border-primary cursor-pointer transition-colors"
+                >
+                  <Ruler className="w-4 h-4" />
+                  <span>View Size Chart</span>
+                </button>
+              </div>
+            )}
+
             {/* Price */}
             <div className="flex items-center space-x-3">
               <span className="text-3xl font-bold text-gray-900">
@@ -525,6 +539,8 @@ const ProductPage = () => {
                 })}
               </div>
             </div>
+
+           
 
             {/* Quantity & Add to Cart */}
             <div className="space-y-4">
@@ -653,41 +669,60 @@ const ProductPage = () => {
 
         {/* Size Chart Modal */}
         {showSizeChart && (
-          <div className="fixed inset-0 bg-(--brand-primary)/40 bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg max-w-md w-full p-6 relative">
+          <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-auto relative">
               <button
                 onClick={() => setShowSizeChart(false)}
-                className="absolute top-4 right-4 p-1 hover:bg-gray-100 rounded-full transition-colors"
+                className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-colors z-10 bg-white shadow-md"
               >
                 <X className="w-5 h-5" />
               </button>
-              <h3 className="text-xl font-semibold mb-4">Size Chart</h3>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left py-2">Size</th>
-                      <th className="text-left py-2">Bust (in)</th>
-                      <th className="text-left py-2">Waist (in)</th>
-                      <th className="text-left py-2">Hips (in)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {Object.entries(sizeChart).map(([size, measurements]) => (
-                      <tr key={size} className="border-b">
-                        <td className="py-2 font-medium uppercase">{size}</td>
-                        <td className="py-2">{measurements.bust}</td>
-                        <td className="py-2">{measurements.waist}</td>
-                        <td className="py-2">{measurements.hips}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              <div className="mt-4 text-xs text-gray-600">
-                <p>* All measurements are in inches</p>
-                <p>* Please allow 0.5-1 inch variation due to manual measurement</p>
-              </div>
+              <h3 className="text-xl font-semibold mb-4 p-6 pb-0">Size Chart</h3>
+              
+              {product.sizeChartImage ? (
+                <div className="p-6">
+                  <div className="relative w-full">
+                    <img
+                      src={product.sizeChartImage}
+                      alt="Size Chart"
+                      className="w-full h-auto max-h-[70vh] object-contain rounded-lg"
+                    />
+                  </div>
+                  <div className="mt-4 text-xs text-gray-600 text-center">
+                    <p>* Please refer to the size chart above for accurate measurements</p>
+                    <p>* If you're between sizes, we recommend sizing up</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-6">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b">
+                          <th className="text-left py-2">Size</th>
+                          <th className="text-left py-2">Bust (in)</th>
+                          <th className="text-left py-2">Waist (in)</th>
+                          <th className="text-left py-2">Hips (in)</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {Object.entries(sizeChart).map(([size, measurements]) => (
+                          <tr key={size} className="border-b">
+                            <td className="py-2 font-medium uppercase">{size}</td>
+                            <td className="py-2">{measurements.bust}</td>
+                            <td className="py-2">{measurements.waist}</td>
+                            <td className="py-2">{measurements.hips}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <div className="mt-4 text-xs text-gray-600">
+                    <p>* All measurements are in inches</p>
+                    <p>* Please allow 0.5-1 inch variation due to manual measurement</p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}

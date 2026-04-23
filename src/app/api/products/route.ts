@@ -28,6 +28,7 @@ const productCreateSchema = z.object({
   services: z.array(z.enum(['free-delivery', 'cash-on-delivery', 'replacement'])).default([]),
   slug: z.string().min(1, 'Slug is required'),
   category: z.string().optional(),
+  sizeChartImage: z.string().optional(),
   defaultVariantId: z.string().optional(),
   variants: z.array(z.object({
     skuCode: z.string().min(1, 'SKU code is required'),
@@ -207,6 +208,20 @@ export async function POST(request: NextRequest) {
       
       // Update validated data with processed variants
       validatedData.variants = processedVariants
+      
+      // Handle size chart image upload
+      const sizeChartFile = formData.get('sizeChartImage') as File
+      if (sizeChartFile && sizeChartFile.size > 0) {
+        const uploadResult = await uploadImage(sizeChartFile, {
+          folder: 'clothing-ecommerce/size-charts',
+        })
+        
+        if (uploadResult.success && uploadResult.url) {
+          validatedData.sizeChartImage = uploadResult.url
+        } else {
+          throw new Error(`Failed to upload size chart image: ${uploadResult.error}`)
+        }
+      }
       
     } else {
       // Handle regular JSON (no images)

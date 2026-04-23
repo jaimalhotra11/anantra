@@ -34,6 +34,9 @@ const ProductSchema = new mongoose.Schema<Product>(
             required: false,
             index: true,
         },
+        sizeChartImage: {
+            type: String,
+        },
         defaultVariantId: {
             type: String,
         },
