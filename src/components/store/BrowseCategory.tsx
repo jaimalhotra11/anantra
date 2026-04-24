@@ -118,18 +118,17 @@ export default function BrowseCategory({ categories: propCategories }: BrowseCat
         {/* Custom Grid Layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-[200px] lg:auto-rows-[150px]">
           {/* Item 1 - Tall left */}
-          <div 
+          <div
             className="col-span-1 md:col-span-1 lg:col-span-1 lg:row-span-2"
             data-category-item
             data-index="0"
           >
             <Link className="px-5 py-5" href={`/categories/${categories[0].slug}`}>
               <div
-                className={`relative h-full group p-5 cursor-pointer overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-500 border border-neutral-200 hover:border-(--brand-primary)/50 ${
-                  visibleItems[0] 
-                    ? 'opacity-100 translate-y-0' 
+                className={`relative h-full group p-5 cursor-pointer overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-500 border border-neutral-200 hover:border-(--brand-primary)/50 ${visibleItems[0]
+                    ? 'opacity-100 translate-y-0'
                     : 'opacity-0 translate-y-8'
-                }`}
+                  }`}
               >
                 {/* Background Image */}
                 <div className="absolute inset-0">
@@ -138,18 +137,8 @@ export default function BrowseCategory({ categories: propCategories }: BrowseCat
                     alt={categories[0].title}
                     className="w-full h-full object-cover"
                   />
-                  {/* Overlay */}
-                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-all duration-300" />
-                </div>
-
-                {/* Content */}
-                <div className="relative z-10">
-                  <h3 className="text-white font-bold text-xl font-serif drop-shadow-lg">
-                    {categories[0].title}
-                  </h3>
-                  {/* <p className="text-white/90 text-sm drop-shadow-md mb-4">
-                    {categories[0].subtitle}
-                  </p> */}
+                  {/* Overlay
+                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-all duration-300" /> */}
                 </div>
                 <div className="absolute inset-0 bg-(--brand-primary)/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg" />
               </div>
@@ -157,18 +146,17 @@ export default function BrowseCategory({ categories: propCategories }: BrowseCat
           </div>
 
           {/* Item 2 - Wide top right */}
-          <div 
+          <div
             className="col-span-1 md:col-span-1 lg:col-span-2 lg:row-span-1"
             data-category-item
             data-index="1"
           >
             <Link className="px-5 py-5" href={`/categories/${categories[1].slug}`}>
               <div
-                className={`relative h-full group p-5 cursor-pointer overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-500 border border-neutral-200 hover:border-(--brand-primary)/50 ${
-                  visibleItems[1] 
-                    ? 'opacity-100 translate-y-0' 
+                className={`relative h-full group p-5 cursor-pointer overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-500 border border-neutral-200 hover:border-(--brand-primary)/50 ${visibleItems[1]
+                    ? 'opacity-100 translate-y-0'
                     : 'opacity-0 translate-y-8'
-                }`}
+                  }`}
               >
                 {/* Background Image */}
                 <div className="absolute inset-0">
@@ -177,15 +165,8 @@ export default function BrowseCategory({ categories: propCategories }: BrowseCat
                     alt={categories[1].title}
                     className="w-full h-full object-cover"
                   />
-                  {/* Overlay */}
-                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-all duration-300" />
-                </div>
-
-                {/* Content */}
-                <div className="relative z-10">
-                  <h3 className="text-white font-bold text-xl font-serif drop-shadow-lg">
-                    {categories[1].title}
-                  </h3>
+                  {/* Overlay
+                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-all duration-300" /> */}
                 </div>
                 <div className="absolute inset-0 bg-(--brand-primary)/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg" />
               </div>
@@ -193,18 +174,17 @@ export default function BrowseCategory({ categories: propCategories }: BrowseCat
           </div>
 
           {/* Item 3 - Small square */}
-          <div 
+          <div
             className="col-span-1 md:col-span-1 lg:col-span-1 lg:row-span-1"
             data-category-item
             data-index="2"
           >
             <Link className="px-5 py-5" href={`/categories/${categories[2].slug}`}>
               <div
-                className={`relative h-full group p-5 cursor-pointer overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-500 border border-neutral-200 hover:border-(--brand-primary)/50 ${
-                  visibleItems[2] 
-                    ? 'opacity-100 translate-y-0' 
+                className={`relative h-full group p-5 cursor-pointer overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-500 border border-neutral-200 hover:border-(--brand-primary)/50 ${visibleItems[2]
+                    ? 'opacity-100 translate-y-0'
                     : 'opacity-0 translate-y-8'
-                }`}
+                  }`}
               >
                 {/* Background Image */}
                 <div className="absolute inset-0">
@@ -213,15 +193,8 @@ export default function BrowseCategory({ categories: propCategories }: BrowseCat
                     alt={categories[2].title}
                     className="w-full h-full object-cover"
                   />
-                  {/* Overlay */}
-                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-all duration-300" />
-                </div>
-
-                {/* Content */}
-                <div className="relative z-10">
-                  <h3 className="text-white font-bold text-xl font-serif drop-shadow-lg">
-                    {categories[2].title}
-                  </h3>
+                  {/* Overlay
+                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-all duration-300" /> */}
                 </div>
                 <div className="absolute inset-0 bg-(--brand-primary)/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg" />
               </div>
@@ -229,18 +202,17 @@ export default function BrowseCategory({ categories: propCategories }: BrowseCat
           </div>
 
           {/* Item 4 - Tall right */}
-          <div 
+          <div
             className="col-span-1 md:col-span-1 lg:col-span-1 lg:row-span-2"
             data-category-item
             data-index="3"
           >
             <Link className="px-5 py-5" href={`/categories/${categories[3].slug}`}>
               <div
-                className={`relative h-full group p-5 cursor-pointer overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-500 border border-neutral-200 hover:border-(--brand-primary)/50 ${
-                  visibleItems[3] 
-                    ? 'opacity-100 translate-y-0' 
+                className={`relative h-full group p-5 cursor-pointer overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-500 border border-neutral-200 hover:border-(--brand-primary)/50 ${visibleItems[3]
+                    ? 'opacity-100 translate-y-0'
                     : 'opacity-0 translate-y-8'
-                }`}
+                  }`}
               >
                 {/* Background Image */}
                 <div className="absolute inset-0">
@@ -249,15 +221,8 @@ export default function BrowseCategory({ categories: propCategories }: BrowseCat
                     alt={categories[3].title}
                     className="w-full h-full object-cover"
                   />
-                  {/* Overlay */}
-                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-all duration-300" />
-                </div>
-
-                {/* Content */}
-                <div className="relative z-10">
-                  <h3 className="text-white font-bold text-xl font-serif drop-shadow-lg">
-                    {categories[3].title}
-                  </h3>
+                  {/* Overlay
+                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-all duration-300" /> */}
                 </div>
                 <div className="absolute inset-0 bg-(--brand-primary)/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg" />
               </div>
@@ -265,18 +230,17 @@ export default function BrowseCategory({ categories: propCategories }: BrowseCat
           </div>
 
           {/* Item 5 - Wide bottom left */}
-          <div 
+          <div
             className="col-span-1 md:col-span-1 lg:col-span-2 lg:row-span-1"
             data-category-item
             data-index="4"
           >
             <Link className="px-5 py-5" href={`/categories/${categories[4].slug}`}>
               <div
-                className={`relative h-full group p-5 cursor-pointer overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-500 border border-neutral-200 hover:border-(--brand-primary)/50 ${
-                  visibleItems[4] 
-                    ? 'opacity-100 translate-y-0' 
+                className={`relative h-full group p-5 cursor-pointer overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-500 border border-neutral-200 hover:border-(--brand-primary)/50 ${visibleItems[4]
+                    ? 'opacity-100 translate-y-0'
                     : 'opacity-0 translate-y-8'
-                }`}
+                  }`}
               >
                 {/* Background Image */}
                 <div className="absolute inset-0">
@@ -285,15 +249,8 @@ export default function BrowseCategory({ categories: propCategories }: BrowseCat
                     alt={categories[4].title}
                     className="w-full h-full object-cover"
                   />
-                  {/* Overlay */}
-                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-all duration-300" />
-                </div>
-
-                {/* Content */}
-                <div className="relative z-10">
-                  <h3 className="text-white font-bold text-xl font-serif drop-shadow-lg">
-                    {categories[4].title}
-                  </h3>
+                  {/* Overlay
+                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-all duration-300" /> */}
                 </div>
                 <div className="absolute inset-0 bg-(--brand-primary)/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg" />
               </div>

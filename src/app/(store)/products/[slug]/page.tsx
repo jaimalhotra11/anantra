@@ -519,7 +519,7 @@ const ProductPage = () => {
                   return (
                     <div
                       key={variant._id}
-                      className={`border border-gray-200 rounded-lg p-4 hover:border-brand-primary transition-colors cursor-pointer ${selectedVariant === variant._id ? 'border-brand-primary' : ''}`}
+                      className={`border border-gray-200 rounded-lg p-4 hover:border-brand-primary transition-colors cursor-pointer ${selectedVariant === variant._id ? 'border-black text-white bg-(--brand-primary)/90' : ''}`}
                       onClick={() => setSelectedVariant(variant._id)}
                     >
                       <div className="aspect-square bg-gray-100 rounded-lg mb-3 overflow-hidden">
