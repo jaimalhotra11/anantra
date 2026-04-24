@@ -584,7 +584,7 @@ const ProductPage = () => {
             </div>
 
             {/* Product Benefits - Horizontal Scrollable */}
-            <div className="overflow-x-auto w-full pb-2">
+            {/* <div className="overflow-x-auto w-full pb-2">
               <div className="flex items-center justify-evenly scroll-auto space-x-1 w-full">
                 <div className="flex items-center space-x-2 bg-white border border-neutral-100 rounded-lg px-3 py-3 text-center text-xs shrink-0 flex-col w-32 h-20 border-neutral-500 wrap-break-word">
                   <Truck className="w-5 h-5 shrink-0" />
@@ -603,7 +603,7 @@ const ProductPage = () => {
                   <span className="text-sm font-medium">7 Day Return</span>
                 </div>
               </div>
-            </div>
+            </div> */}
 
             {/* Collapsible Product Description */}
             <div className="border-t pt-6">
