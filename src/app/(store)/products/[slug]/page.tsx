@@ -104,12 +104,13 @@ const ProductPage = () => {
         
         if (result.success && result.data) {
           setProduct(result.data)
-          // Set default variant if available
-          if (result.data.defaultVariantId) {
-            setSelectedVariant(result.data.defaultVariantId)
-          } else if (result.data.variants && result.data.variants.length > 0) {
-            setSelectedVariant(result.data.variants[0]._id)
-          }
+        // Set default color and size if available
+        if (result.data.variants && result.data.variants.length > 0) {
+          const firstVariant = result.data.variants[0]
+          const displayInfo = getVariantDisplayInfo(firstVariant)
+          if (displayInfo.color) setSelectedColor(displayInfo.color)
+          if (displayInfo.size) setSelectedSize(displayInfo.size)
+        }
         } else {
           throw new Error(result.error || 'Failed to fetch product')
         }
@@ -166,6 +167,36 @@ const ProductPage = () => {
     return { average, total, distribution }
   }
 
+  // Update selected variant when color or size changes
+  useEffect(() => {
+    if (selectedColor && selectedSize) {
+      const variant = getVariantByColorAndSize(selectedColor, selectedSize)
+      if (variant) {
+        setSelectedVariant(variant._id)
+      } else {
+        // If current size is not available for selected color, select first available size for that color
+        const availableSizesForColor = getAvailableSizesForColor(selectedColor)
+        if (availableSizesForColor.length > 0) {
+          setSelectedSize(availableSizesForColor[0])
+          const newVariant = getVariantByColorAndSize(selectedColor, availableSizesForColor[0])
+          if (newVariant) {
+            setSelectedVariant(newVariant._id)
+          }
+        }
+      }
+    }
+    if (selectedColor && !selectedSize) {
+      const availableSizesForColor = getAvailableSizesForColor(selectedColor)
+      if (availableSizesForColor.length > 0) {
+        setSelectedSize(availableSizesForColor[0])
+        const variant = getVariantByColorAndSize(selectedColor, availableSizesForColor[0])
+        if (variant) {
+          setSelectedVariant(variant._id)
+        }
+      }
+    }
+  }, [selectedColor, selectedSize, product])
+
   const getCurrentVariant = () => {
     if (!product || !selectedVariant) return null
     return product.variants.find(v => v._id === selectedVariant)
@@ -194,7 +225,58 @@ const ProductPage = () => {
     return Math.round(((originalPrice - price) / originalPrice) * 100)
   }
 
+  // Helper functions for color and size selection
+  const getAvailableColors = () => {
+    if (!product) return []
+    const colors = new Set<string>()
+    product.variants.forEach(variant => {
+      const colorAttr = variant.attributes.find((attr: any) => attr.name.toLowerCase() === 'color')
+      if (colorAttr) colors.add(colorAttr.value)
+    })
+    return Array.from(colors)
+  }
+
+  const getAvailableSizes = () => {
+    if (!product) return []
+    const sizes = new Set<string>()
+    product.variants.forEach(variant => {
+      const sizeAttr = variant.attributes.find((attr: any) => attr.name.toLowerCase() === 'size')
+      if (sizeAttr) sizes.add(sizeAttr.value)
+    })
+    return Array.from(sizes).sort()
+  }
+
+  const getAvailableSizesForColor = (color: string) => {
+    if (!product) return []
+    const sizes = new Set<string>()
+    product.variants.forEach(variant => {
+      const colorAttr = variant.attributes.find((attr: any) => attr.name.toLowerCase() === 'color')
+      const sizeAttr = variant.attributes.find((attr: any) => attr.name.toLowerCase() === 'size')
+      if (colorAttr?.value === color && sizeAttr) {
+        sizes.add(sizeAttr.value)
+      }
+    })
+    return Array.from(sizes).sort()
+  }
+
+  const getVariantByColorAndSize = (color: string, size: string) => {
+    if (!product) return null
+    return product.variants.find(variant => {
+      const colorAttr = variant.attributes.find((attr: any) => attr.name.toLowerCase() === 'color')
+      const sizeAttr = variant.attributes.find((attr: any) => attr.name.toLowerCase() === 'size')
+      return colorAttr?.value === color && sizeAttr?.value === size
+    })
+  }
+
   const getVariantDisplayInfo = (variant: any) => {
+    if (!variant || !variant.attributes) {
+      return {
+        color: '',
+        size: '',
+        stock: 'In Stock'
+      }
+    }
+    
     const colorAttr = variant.attributes.find((attr: any) => attr.name.toLowerCase() === 'color')
     const sizeAttr = variant.attributes.find((attr: any) => attr.name.toLowerCase() === 'size')
     
@@ -205,26 +287,6 @@ const ProductPage = () => {
         ? variant.stockQuantity > 2 ? 'In Stock' : `Only ${variant.stockQuantity} left`
         : 'In Stock'
     }
-  }
-
-  const getAllSizes = () => {
-    if (!product) return []
-    const sizes = new Set<string>()
-    product.variants.forEach(variant => {
-      const sizeAttr = variant.attributes.find((attr: any) => attr.name.toLowerCase() === 'size')
-      if (sizeAttr) sizes.add(sizeAttr.value)
-    })
-    return Array.from(sizes).sort()
-  }
-
-  const getAllColors = () => {
-    if (!product) return []
-    const colors = new Set<string>()
-    product.variants.forEach(variant => {
-      const colorAttr = variant.attributes.find((attr: any) => attr.name.toLowerCase() === 'color')
-      if (colorAttr) colors.add(colorAttr.value)
-    })
-    return Array.from(colors)
   }
 
   // Size chart data
@@ -248,8 +310,26 @@ const ProductPage = () => {
 
   const handleAddToCart = async () => {
     if (!product) return
+    
+    // Check if both color and size are selected
+    const hasColors = getAvailableColors().length > 0
+    const hasSizes = getAvailableSizes().length > 0
+    
+    if (hasColors && !selectedColor) {
+      setCartMessage('Please select a color')
+      return
+    }
+    
+    if (hasSizes && !selectedSize) {
+      setCartMessage('Please select a size')
+      return
+    }
+    
     const currentVariant = getCurrentVariant()
-    if (!currentVariant) return
+    if (!currentVariant) {
+      setCartMessage('Selected combination not available')
+      return
+    }
 
     try {
       setCartLoading(true)
@@ -510,35 +590,75 @@ const ProductPage = () => {
               )}
             </div>
 
-            {/* Product Variants - Amazon Style */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Available Variants</h3>
-              <div className="grid grid-cols-3 md:grid-cols-5 gap-4">
-                {product.variants.map(variant => {
-                  const displayInfo = getVariantDisplayInfo(variant)
-                  return (
-                    <div
-                      key={variant._id}
-                      className={`border border-gray-200 rounded-lg p-4 hover:border-brand-primary transition-colors cursor-pointer ${selectedVariant === variant._id ? 'border-black text-white bg-(--brand-primary)/90' : ''}`}
-                      onClick={() => setSelectedVariant(variant._id)}
-                    >
-                      <div className="aspect-square bg-gray-100 rounded-lg mb-3 overflow-hidden">
-                        <img
-                          src={variant.images[0] || '/placeholder-image.jpg'}
-                          alt={`${displayInfo.color} - ${displayInfo.size}`}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-sm font-medium">{displayInfo.color} - {displayInfo.size}</p>
-                        <p className="text-lg font-bold text-brand-primary">₹{variant.price.toLocaleString('en-IN')}</p>
-                        <p className={`text-xs ${displayInfo.stock.includes('Only') ? 'text-orange-500' : 'text-gray-500'}`}>{displayInfo.stock}</p>
-                      </div>
-                    </div>
-                  )
-                })}
+            {/* Color Selection */}
+            {getAvailableColors().length > 0 && (
+              <div className="space-y-3">
+                <h3 className="text-lg font-semibold">Color: <span className="font-normal text-gray-600">{selectedColor || 'Select a color'}</span></h3>
+                <div className="flex flex-wrap gap-2">
+                  {getAvailableColors().map(color => {
+                    const variant = getVariantByColorAndSize(color, selectedSize || '')
+                    const isAvailable = !selectedSize || variant
+                    return (
+                      <button
+                        key={color}
+                        onClick={() => setSelectedColor(color)}
+                        className={`px-4 flex items-center justify-center gap-2 py-2 border rounded-md transition-colors ${
+                          selectedColor === color
+                            ? 'border-black bg-(--brand-primary) text-white'
+                            : 'border-gray-300 hover:border-gray-400'
+                        }`}
+                      >
+                        <span className={`w-4 h-4 rounded-full`} style={{backgroundColor: color.toLowerCase()}}></span>
+                        <span>{color}</span>
+                      </button>
+                    )
+                  })}
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* Size Selection */}
+            {getAvailableSizes().length > 0 && (
+              <div className="space-y-3">
+                <h3 className="text-lg font-semibold">Size: <span className="font-normal text-gray-600">{selectedSize || 'Select a size'}</span></h3>
+                <div className="flex flex-wrap gap-2">
+                  {getAvailableSizes().map(size => {
+                    const variant = getVariantByColorAndSize(selectedColor || '', size)
+                    const isAvailable = !selectedColor || variant
+                    const stockInfo = variant ? getVariantDisplayInfo(variant).stock : ''
+                    return (
+                      <button
+                        key={size}
+                        onClick={() => setSelectedSize(size)}
+                        disabled={!isAvailable}
+                        className={`px-4 py-2 border rounded-md transition-colors relative ${
+                          selectedSize === size
+                            ? 'border-black bg-(--brand-primary) text-white'
+                            : isAvailable
+                            ? 'border-gray-300 hover:border-gray-400'
+                            : 'border-gray-200 border-2 border-dashed bg-gray-100/40 text-gray-400/60 cursor-not-allowed'
+                        }`}
+                      >
+                        {size}
+                        {stockInfo.includes('Only') && (
+                          <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                            !
+                          </span>
+                        )}
+                      </button>
+                    )
+                  })}
+                </div>
+                {selectedSize && selectedColor && (() => {
+                  const variant = getVariantByColorAndSize(selectedColor, selectedSize)
+                  return variant ? (
+                    <p className="text-sm text-gray-600">
+                      {getVariantDisplayInfo(variant).stock}
+                    </p>
+                  ) : null
+                })()}
+              </div>
+            )}
 
            
 

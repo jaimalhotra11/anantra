@@ -49,7 +49,13 @@ export interface GuestCartItem {
 const GUEST_CART_KEY = 'ananta_guest_cart'
 
 export function toProductCardItem(product: ProductListItem): ProductCardItem {
-  const defaultVariant = product.variants?.find((variant) => variant.isActive) || product.variants?.[0]
+  // First try to find the variant by defaultVariantId, then fallback to active variant
+  let defaultVariant = product.variants?.find((variant) => variant._id === (product as any).defaultVariantId)
+  
+  if (!defaultVariant) {
+    defaultVariant = product.variants?.find((variant) => variant.isActive) || product.variants?.[0]
+  }
+  
   const price = defaultVariant?.price || 0
   const salePrice = defaultVariant?.cuttedPrice
 

@@ -88,12 +88,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
   return (
     <div
-      className='group mx-auto w-[280px] md:w-[250px] lg:w-[250px] relative rounded-lg overflow-hidden bg-background transition-all duration-300'
+      className='group mx-auto w-[160px] sm:w-[280px] md:w-[250px] lg:w-[250px] relative rounded-lg overflow-hidden bg-background transition-all duration-300'
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       <Link href={`/products/${product.slug}`}>
-        <div className='relative h-96 md:h-80 flex items-center justify-center overflow-hidden'>
+        <div className='relative h-64 sm:h-96 md:h-80 flex items-center justify-center overflow-hidden'>
           {/* Discount Badge */}
           {/* {product.discount && (
             <span className='absolute top-3 left-3 text-neutral-800 text-xs font-semibold px-3 py-1 rounded-full z-10 shadow-sm'>
@@ -142,9 +142,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         </div>
 
         {/* Product Info */}
-        <div className='p-4 space-y-3'>
+        <div className='p-2 sm:p-4 space-y-2 sm:space-y-3'>
           {/* Product Name */}
-          <h3 className={`text-sm font-medium line-clamp-2 transition-colors duration-300 ${isHovered ? 'text-brand-primary' : 'text-neutral-800'
+          <h3 className={`text-xs sm:text-sm font-medium line-clamp-2 transition-colors duration-300 ${isHovered ? 'text-brand-primary' : 'text-neutral-800'
             }`}>
             {product.name}
           </h3>
@@ -181,7 +181,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
           {/* Price */}
           <div className='flex items-center space-x-2'>
-            <span className='text-md font-semibold text-neutral-900'>
+            <span className='text-sm sm:text-md font-semibold text-neutral-900'>
               Rs. {product.price.toLocaleString('en-IN')}.00
             </span>
           </div>

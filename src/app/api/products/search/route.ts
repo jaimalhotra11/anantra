@@ -5,7 +5,7 @@ import { z } from 'zod'
 
 // Advanced search schema
 const searchSchema = z.object({
-  q: z.string().min(1, 'Search query is required'),
+  q: z.string().optional(),
   page: z.string().optional().transform(val => val ? parseInt(val) : 1),
   limit: z.string().optional().transform(val => val ? parseInt(val) : 10),
   status: z.enum(['draft', 'published', 'archived']).optional(),
@@ -15,6 +15,8 @@ const searchSchema = z.object({
   minPrice: z.string().optional().transform(val => val ? parseFloat(val) : undefined),
   maxPrice: z.string().optional().transform(val => val ? parseFloat(val) : undefined),
   services: z.string().optional().transform(val => val ? val.split(',') : undefined),
+  colors: z.string().optional().transform(val => val ? val.split(',') : undefined),
+  sizes: z.string().optional().transform(val => val ? val.split(',') : undefined),
   inStock: z.string().optional().transform(val => val === 'true'),
   hasImages: z.string().optional().transform(val => val === 'true'),
 })
@@ -38,16 +40,20 @@ export async function GET(request: NextRequest) {
       minPrice,
       maxPrice,
       services,
+      colors,
+      sizes,
       inStock,
       hasImages,
     } = validatedQuery
 
     // Build advanced search query
-    const query: any = {
-      $or: [
+    const query: any = {}
+    
+    // Only add search conditions if query is provided
+    if (q) {
+      query.$or = [
         { title: { $regex: q, $options: 'i' } },
         { description: { $regex: q, $options: 'i' } },
-        { 'variants.skuCode': { $regex: q, $options: 'i' } },
         { 'variants.attributes.name': { $regex: q, $options: 'i' } },
         { 'variants.attributes.value': { $regex: q, $options: 'i' } },
       ]
@@ -88,9 +94,37 @@ export async function GET(request: NextRequest) {
       query['variants.isActive'] = true
     }
 
-    // Images filter
-    if (hasImages) {
-      query['variants.images'] = { $exists: true, $ne: [] }
+    // Colors and Sizes filter - handle multiple combinations
+    console.log("colors in filter", colors)
+    console.log("sizes in filter", sizes)
+    
+    if (colors && colors.length > 0 || sizes && sizes.length > 0) {
+      const attributeConditions = []
+      
+      if (colors && colors.length > 0) {
+        attributeConditions.push({
+          $elemMatch: {
+            name: 'Color',
+            value: { $in: colors }
+          }
+        })
+      }
+      
+      if (sizes && sizes.length > 0) {
+        attributeConditions.push({
+          $elemMatch: {
+            name: 'Size', 
+            value: { $in: sizes }
+          }
+        })
+      }
+      
+      if (attributeConditions.length === 1) {
+        query['variants.attributes'] = attributeConditions[0]
+      } else {
+        // For both color and size filters, we need variants that match BOTH conditions
+        query['variants.attributes'] = { $all: attributeConditions }
+      }
     }
 
     // Sorting logic
@@ -120,33 +154,67 @@ export async function GET(request: NextRequest) {
     // Calculate search relevance scores (simple implementation)
     const productsWithScores = products.map(product => {
       let score = 0
+      let updatedDefaultVariantId = product.defaultVariantId
       
-      // Title matches get highest score
-      if (product.title.toLowerCase().includes(q.toLowerCase())) {
-        score += 10
-      }
-      
-      // SKU matches get high score
-      const hasSkuMatch = product.variants.some((variant: any) => 
-        variant.skuCode.toLowerCase().includes(q.toLowerCase())
-      )
-      if (hasSkuMatch) score += 8
-      
-      // Description matches get medium score
-      if (product.description.toLowerCase().includes(q.toLowerCase())) {
-        score += 5
-      }
-      
-      // Attribute matches get lower score
-      const hasAttributeMatch = product.variants.some((variant: any) =>
-        variant.attributes.some((attr: any) =>
-          attr.name.toLowerCase().includes(q.toLowerCase()) ||
-          attr.value.toLowerCase().includes(q.toLowerCase())
+      // Only calculate relevance scores if there's a search query
+      if (q) {
+        const searchQuery = q!.toLowerCase()
+        
+        // Title matches get highest score
+        if (product.title.toLowerCase().includes(searchQuery)) {
+          score += 10
+        }
+        
+        // SKU matches get high score
+        const hasSkuMatch = product.variants.some((variant: any) => 
+          variant.skuCode.toLowerCase().includes(searchQuery)
         )
-      )
-      if (hasAttributeMatch) score += 3
+        if (hasSkuMatch) score += 8
+        
+        // Description matches get medium score
+        if (product.description.toLowerCase().includes(searchQuery)) {
+          score += 5
+        }
+        
+        // Attribute matches get lower score
+        const hasAttributeMatch = product.variants.some((variant: any) =>
+          variant.attributes.some((attr: any) =>
+            attr.name.toLowerCase().includes(searchQuery) ||
+            attr.value.toLowerCase().includes(searchQuery)
+          )
+        )
+        if (hasAttributeMatch) score += 3
+      }
       
-      return { ...product, _searchScore: score }
+      // Update defaultVariantId based on color/size filters
+      if ((colors && colors.length > 0) || (sizes && sizes.length > 0)) {
+        const matchingVariant = product.variants.find((variant: any) => {
+          if (!variant.isActive) return false
+          
+          const variantAttributes = variant.attributes.reduce((acc: any, attr: any) => {
+            acc[attr.name.toLowerCase()] = attr.value
+            return acc
+          }, {})
+          
+          let matches = true
+          
+          if (colors && colors.length > 0) {
+            matches = matches && colors.includes(variantAttributes.color)
+          }
+          
+          if (sizes && sizes.length > 0) {
+            matches = matches && sizes.includes(variantAttributes.size)
+          }
+          
+          return matches
+        })
+        
+        if (matchingVariant) {
+          updatedDefaultVariantId = matchingVariant._id
+        }
+      }
+      
+      return { ...product, _searchScore: score, defaultVariantId: updatedDefaultVariantId }
     })
 
     // Sort by relevance if requested

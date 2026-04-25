@@ -18,6 +18,8 @@ const querySchema = z.object({
   maxPrice: z.string().optional().transform(val => val ? parseFloat(val) : undefined),
   services: z.string().optional().transform(val => val ? val.split(',') : undefined),
   category: z.string().optional(),
+  colors: z.string().optional().transform(val => val ? val.split(',') : undefined),
+  sizes: z.string().optional().transform(val => val ? val.split(',') : undefined),
 })
 
 // Product creation schema
@@ -65,6 +67,8 @@ export async function GET(request: NextRequest) {
       maxPrice,
       services,
       category,
+      colors,
+      sizes,
     } = validatedQuery
 
     // Build query
@@ -107,6 +111,41 @@ export async function GET(request: NextRequest) {
       query.category = category
     }
 
+    // Colors filter - filter products that have variants with the specified colors
+    if (colors && colors.length > 0) {
+      query['variants.attributes'] = {
+        $elemMatch: {
+          name: 'color',
+          value: { $in: colors }
+        }
+      }
+    }
+
+    // Sizes filter - filter products that have variants with the specified sizes
+    if (sizes && sizes.length > 0) {
+      if (query['variants.attributes']) {
+        // If we already have a color filter, we need to combine them
+        query['variants.attributes'] = {
+          $and: [
+            query['variants.attributes'],
+            {
+              $elemMatch: {
+                name: 'size',
+                value: { $in: sizes }
+              }
+            }
+          ]
+        }
+      } else {
+        query['variants.attributes'] = {
+          $elemMatch: {
+            name: 'size',
+            value: { $in: sizes }
+          }
+        }
+      }
+    }
+
     // Sorting
     const sort: any = {}
     sort[sortBy] = sortOrder === 'asc' ? 1 : -1
@@ -143,7 +182,7 @@ export async function GET(request: NextRequest) {
     })
   } catch (error: any) {
     console.error('Error fetching products:', error)
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { success: false, error: 'Invalid query parameters', details: error.errors },
@@ -169,20 +208,20 @@ export async function POST(request: NextRequest) {
 
     const contentType = request.headers.get('content-type')
     let validatedData: any
-    
+
     // Handle FormData (with images)
     if (contentType && contentType.includes('multipart/form-data')) {
       const formData = await request.formData()
-      
+
       // Extract product data
       const productData = JSON.parse(formData.get('product') as string)
       validatedData = productCreateSchema.parse(productData)
-      
+
       // Handle image uploads for each variant
       const processedVariants = await Promise.all(
         validatedData.variants.map(async (variant: any) => {
           const images: string[] = []
-          
+
           // Process images for this variant
           for (let i = 0; i < 10; i++) { // Support up to 10 images per variant
             const imageFile = formData.get(`variant_${variant.skuCode}_image_${i}`) as File
@@ -190,7 +229,7 @@ export async function POST(request: NextRequest) {
               const uploadResult = await uploadImage(imageFile, {
                 folder: 'clothing-ecommerce/products',
               })
-              
+
               if (uploadResult.success && uploadResult.url) {
                 images.push(uploadResult.url)
               } else {
@@ -198,31 +237,31 @@ export async function POST(request: NextRequest) {
               }
             }
           }
-          
+
           return {
             ...variant,
             images: images.length > 0 ? images : variant.images || []
           }
         })
       )
-      
+
       // Update validated data with processed variants
       validatedData.variants = processedVariants
-      
+
       // Handle size chart image upload
       const sizeChartFile = formData.get('sizeChartImage') as File
       if (sizeChartFile && sizeChartFile.size > 0) {
         const uploadResult = await uploadImage(sizeChartFile, {
           folder: 'clothing-ecommerce/size-charts',
         })
-        
+
         if (uploadResult.success && uploadResult.url) {
           validatedData.sizeChartImage = uploadResult.url
         } else {
           throw new Error(`Failed to upload size chart image: ${uploadResult.error}`)
         }
       }
-      
+
     } else {
       // Handle regular JSON (no images)
       const body = await request.json()
@@ -240,8 +279,8 @@ export async function POST(request: NextRequest) {
 
     // Check if any SKU code already exists
     const skuCodes = validatedData.variants.map((v: any) => v.skuCode)
-    const existingSku = await Product.findOne({ 
-      'variants.skuCode': { $in: skuCodes } 
+    const existingSku = await Product.findOne({
+      'variants.skuCode': { $in: skuCodes }
     })
     if (existingSku) {
       return NextResponse.json(

@@ -117,11 +117,11 @@ const CreateProductPage = () => {
   ];
 
   const predefinedSizes = [
-    "Extra Small",
-    "Small",
-    "Medium",
-    "Large",
-    "Extra Large",
+    "XS",
+    "S",
+    "M",
+    "L",
+    "XL",
     "XXL",
     "XXXL",
     "XXXXL",
