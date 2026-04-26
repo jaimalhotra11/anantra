@@ -58,6 +58,11 @@ const CategoriesPage = () => {
             href={`/categories/${category.slug}`}
             className='rounded-lg border border-border bg-card p-5 hover:border-primary/40 transition-colors'
           >
+            {
+              category.image && (
+                <img src={category.image} alt="category image" className='' />
+              )
+            }
             <h2 className='text-lg font-semibold text-primary'>{category.name}</h2>
             <p className='text-sm text-muted-foreground mt-1 line-clamp-3'>
               {category.description || 'Explore products in this category.'}
