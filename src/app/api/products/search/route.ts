@@ -9,7 +9,7 @@ const searchSchema = z.object({
   page: z.string().optional().transform(val => val ? parseInt(val) : 1),
   limit: z.string().optional().transform(val => val ? parseInt(val) : 10),
   status: z.enum(['draft', 'published', 'archived']).optional(),
-  category: z.string().optional(),
+  category: z.string().optional().transform(val => val ? val.split(',') : undefined),
   sortBy: z.enum(['relevance', 'title', 'createdAt', 'updatedAt', 'price']).optional().default('relevance'),
   sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
   minPrice: z.string().optional().transform(val => val ? parseFloat(val) : undefined),
@@ -67,8 +67,12 @@ export async function GET(request: NextRequest) {
     }
 
     // Category filter
-    if (category) {
-      query.category = category
+    if (category && category.length > 0) {
+      if (category.length === 1) {
+        query.category = category[0]
+      } else {
+        query.category = { $in: category }
+      }
     }
 
     // Price range filter

@@ -19,6 +19,7 @@ interface FilterState {
   priceRange: [number, number]
   colors: { name: string, hex: string, value: string }[]
   sizes: string[]
+  categories: string[]
 }
 
 const COLORS = [
@@ -64,6 +65,7 @@ const ProductsPage = () => {
     priceRange: [0, 5000],
     colors: [],
     sizes: [],
+    categories: [],
   })
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState<string>('')
@@ -159,6 +161,10 @@ const ProductsPage = () => {
         params.set('sizes', filters.sizes.join(','))
       }
 
+      if (filters.categories.length > 0) {
+        params.set('category', filters.categories.join(','))
+      }
+
       const endpoint = `/api/products/search?${params.toString()}`
       const response = await fetch(endpoint)
       const result = await response.json()
@@ -197,6 +203,23 @@ const ProductsPage = () => {
     fetchProducts(1, true)
   }, [debouncedSearchQuery])
 
+  // Fetch categories
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch('/api/categories')
+        const result = await response.json()
+        if (result.success) {
+          setCategories(result.data)
+        }
+      } catch (error) {
+        console.error('Failed to fetch categories:', error)
+      }
+    }
+
+    fetchCategories()
+  }, [])
+
   const productCards = useMemo(() => products.map(toProductCardItem), [products])
 
   const handleBack = () => {
@@ -221,7 +244,7 @@ const ProductsPage = () => {
 
       <div className='flex flex-col lg:flex-row gap-8'>
         {/* Filter Sidebar - Desktop Only */}
-        <div className='hidden lg:block w-full lg:w-80 flex-shrink-0'>
+        <div className='hidden lg:block w-full lg:w-80 shrink-0'>
           <div className='bg-card border border-border rounded-lg p-6 space-y-6'>
             <h2 className='text-xl font-semibold text-foreground'>Filters</h2>
 
@@ -246,6 +269,28 @@ const ProductsPage = () => {
                     className='w-24'
                   />
                 </div>
+              </div>
+            </div>
+
+            {/* Categories */}
+            <div>
+              <h3 className='font-medium text-foreground mb-3'>Categories</h3>
+              <div className='space-y-2'>
+                {categories.map((category) => (
+                  <div key={category._id} className='flex items-center space-x-2'>
+                    <Checkbox
+                      id={`category-${category._id}`}
+                      checked={filters.categories.includes(category._id)}
+                      onCheckedChange={() => handleFilterChange('categories', category._id)}
+                    />
+                    <label
+                      htmlFor={`category-${category._id}`}
+                      className='text-sm text-muted-foreground cursor-pointer capitalize'
+                    >
+                      {category.name}
+                    </label>
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -404,6 +449,28 @@ const ProductsPage = () => {
                         className='w-24'
                       />
                     </div>
+                  </div>
+                </div>
+
+                {/* Categories */}
+                <div>
+                  <h3 className='font-medium text-foreground mb-3'>Categories</h3>
+                  <div className='space-y-2'>
+                    {categories.map((category) => (
+                      <div key={category._id} className='flex items-center space-x-2'>
+                        <Checkbox
+                          id={`mobile-category-${category._id}`}
+                          checked={filters.categories.includes(category._id)}
+                          onCheckedChange={() => handleFilterChange('categories', category._id)}
+                        />
+                        <label
+                          htmlFor={`mobile-category-${category._id}`}
+                          className='text-sm text-muted-foreground cursor-pointer capitalize'
+                        >
+                          {category.name}
+                        </label>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
