@@ -74,7 +74,7 @@ const CategoryDetailsPage = () => {
       {productCards.length === 0 ? (
         <p className='text-muted-foreground'>No published products in this category yet.</p>
       ) : (
-        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6'>
+        <div className='grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8'>
           {productCards.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
