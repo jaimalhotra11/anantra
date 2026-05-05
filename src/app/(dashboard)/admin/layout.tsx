@@ -11,8 +11,6 @@ const AdminDashboardLayout = ({children}: {children: React.ReactNode}) => {
   const { data: session } = useSession()
   const router = useRouter()
 
-  console.log("session", session)
-
   useEffect(() => {
     if (!session) {
       router.push('/login')

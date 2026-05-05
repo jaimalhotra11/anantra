@@ -147,6 +147,12 @@ const OrderSchema = new mongoose.Schema<Order>({
         type: String,
         trim: true,
     },
+    paymentMethod: {
+        type: String,
+        enum: ['razorpay', 'cod'],
+        required: [true, 'Payment method is required'],
+        default: 'razorpay',
+    },
     paymentStatus: {
         type: String,
         enum: ['created', 'pending', 'paid', 'failed', 'refunded'],
@@ -166,6 +172,26 @@ const OrderSchema = new mongoose.Schema<Order>({
     refundAmount: {
         type: Number,
         min: [0, 'Refund amount cannot be negative'],
+    },
+    adminRemarks: {
+        type: String,
+        trim: true,
+        default: '',
+    },
+    trackingNumber: {
+        type: String,
+        trim: true,
+        default: '',
+    },
+    estimatedDelivery: {
+        type: Date,
+        set: function(val: any) {
+            // Handle both string and Date inputs
+            if (typeof val === 'string') {
+                return new Date(val);
+            }
+            return val;
+        }
     }
 }, {
     timestamps: true,
@@ -177,9 +203,9 @@ OrderSchema.index({ paymentStatus: 1, orderStatus: 1 })
 OrderSchema.index({ razorpayOrderId: 1 })
 
 // Pre-save middleware to calculate totals
-OrderSchema.pre('save', function() {
+OrderSchema.pre('save', function(this: any) {
     // Calculate subtotal from items
-    this.subtotal = this.items.reduce((total, item) => {
+    this.subtotal = this.items.reduce((total: number, item: any) => {
         return total + (item.price * item.quantity);
     }, 0);
 

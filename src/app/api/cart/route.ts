@@ -7,24 +7,31 @@ import { auth } from '@/lib/auth'
 
 const addItemSchema = z.object({
   productId: z.string().min(1),
-  variantId: z.string().optional(),
+  variantId: z.string().nullable().optional(),
   quantity: z.number().int().min(1).default(1),
 })
 
 const updateItemSchema = z.object({
   productId: z.string().min(1),
-  variantId: z.string().optional(),
+  variantId: z.string().nullable().optional(),
   quantity: z.number().int().min(1),
 })
 
 const removeItemSchema = z.object({
   productId: z.string().min(1),
-  variantId: z.string().optional(),
+  variantId: z.string().nullable().optional(),
 })
 
 async function getAuthenticatedUserId() {
   const session = await auth()
-  return session?.user?.id || null
+  const userId = session?.user?.id || null
+  
+  // Don't allow admin users to access cart API
+  if (userId === 'super-admin') {
+    return null
+  }
+  
+  return userId
 }
 
 async function getOrCreateCart(userId: string) {
@@ -123,7 +130,7 @@ export async function POST(request: NextRequest) {
     }
 
     const cart = await getOrCreateCart(userId)
-    cart.addItem(productId, variantId || null, quantity, selectedVariant.price)
+    cart.addItem(productId, variantId, quantity, selectedVariant.price)
     await cart.save()
 
     const data = await enrichCart(cart)
@@ -153,7 +160,7 @@ export async function PUT(request: NextRequest) {
     const { productId, variantId, quantity } = updateItemSchema.parse(body)
 
     const cart = await getOrCreateCart(userId)
-    cart.updateItemQuantity(productId, variantId || null, quantity)
+    cart.updateItemQuantity(productId, variantId, quantity)
     await cart.save()
 
     const data = await enrichCart(cart)
@@ -183,7 +190,7 @@ export async function DELETE(request: NextRequest) {
     const { productId, variantId } = removeItemSchema.parse(body)
 
     const cart = await getOrCreateCart(userId)
-    cart.removeItem(productId, variantId || null)
+    cart.removeItem(productId, variantId)
     await cart.save()
 
     const data = await enrichCart(cart)

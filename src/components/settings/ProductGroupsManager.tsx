@@ -93,8 +93,6 @@ const ProductGroupsManager = ({ settings, onUpdate }: ProductGroupsManagerProps)
       const response = await fetch(`/api/products?search=${encodeURIComponent(query)}&limit=20`);
       const {data} = await response.json();
 
-      console.log(data)
-
       if (data) {
         // Transform product data to match the interface expected by ProductGroupsManager
         const transformedProducts = (data || []).map((product: any) => ({
@@ -106,7 +104,6 @@ const ProductGroupsManager = ({ settings, onUpdate }: ProductGroupsManagerProps)
           images: product.variants?.[0]?.images || product.images || []
         }));
         
-        console.log("Transformed products:", transformedProducts);
         setAvailableProducts(transformedProducts);
       } else {
         toast.error("Failed to search products");

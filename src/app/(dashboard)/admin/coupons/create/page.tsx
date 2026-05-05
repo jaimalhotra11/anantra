@@ -136,7 +136,6 @@ const CreateCouponPage = () => {
     setLoading(true);
 
     try {
-      console.log("CLicked")
       const response = await fetch("/api/coupons", {
         method: "POST",
         headers: {

@@ -8,7 +8,9 @@ import Product from '@/models/Product'
 import Coupon from '@/models/Coupon'
 import CouponUsage from '@/models/CouponUsage'
 import Order from '@/models/Order'
+import User from '@/models/User'
 import { createRazorpayOrder } from '@/lib/razorpay'
+import { sendEmail } from '@/lib/resend'
 
 const addressSchema = z.object({
   fullName: z.string().min(2),
@@ -24,6 +26,7 @@ const addressSchema = z.object({
 const payloadSchema = z.object({
   shippingAddress: addressSchema,
   couponCode: z.string().optional(),
+  paymentMethod: z.enum(['razorpay', 'cod']).default('razorpay'),
 })
 
 interface ProductLite {
@@ -47,7 +50,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { shippingAddress, couponCode } = payloadSchema.parse(body)
+    const { shippingAddress, couponCode, paymentMethod } = payloadSchema.parse(body)
 
     const cart = await Cart.findOne({ userId: session.user.id }).lean()
     if (!cart || !cart.items || cart.items.length === 0) {
@@ -112,13 +115,17 @@ export async function POST(request: NextRequest) {
       discount = coupon.calculateDiscount(subtotal)
     }
 
-    const shippingCharge = 0
-    const totalAmount = Math.max(0, subtotal - discount + shippingCharge)
+    const shippingCharge = subtotal < 2000 ? 100 : 0
+    const codConvenienceFee = paymentMethod === 'cod' ? 25 : 0
+    const totalAmount = Math.max(0, subtotal - discount + shippingCharge + codConvenienceFee)
 
-    const razorpayOrder = await createRazorpayOrder({
-      amount: Math.round(totalAmount * 100),
-      receipt: `order-${Date.now()}`,
-    })
+    let razorpayOrder = null
+    if (paymentMethod === 'razorpay') {
+      razorpayOrder = await createRazorpayOrder({
+        amount: Math.round(totalAmount * 100),
+        receipt: `order-${Date.now()}`,
+      })
+    }
 
     const order = await Order.create({
       userId: session.user.id,
@@ -143,19 +150,96 @@ export async function POST(request: NextRequest) {
           }
         : undefined,
       shippingAddress,
-      razorpayOrderId: razorpayOrder.orderId,
-      paymentStatus: 'created',
-      orderStatus: 'processing',
+      razorpayOrderId: razorpayOrder?.orderId || `cod-${Date.now()}`,
+      paymentStatus: paymentMethod === 'cod' ? 'pending' : 'created',
+      orderStatus: paymentMethod === 'cod' ? 'confirmed' : 'processing',
+      paymentMethod,
     })
+
+    // Send order confirmation email for all orders
+    try {
+      const user = await User.findById(session.user.id).select('fullName email').lean()
+      if (user?.email) {
+        const orderId = order._id.toString().slice(-6)
+        const emailHtml = `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="background: linear-gradient(135deg, #5F613A 0%, #7A7C4F 100%); color: white; padding: 30px; border-radius: 10px; text-align: center;">
+              <h1 style="margin: 0; font-size: 28px;">Order Placed Successfully!</h1>
+              <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Thank you for your purchase</p>
+            </div>
+            
+            <div style="background: #f9f9f9; padding: 20px; border-radius: 10px; margin: 20px 0;">
+              <h2 style="color: #333; margin-bottom: 15px;">Order Details</h2>
+              <p style="margin: 5px 0;"><strong>Order Number:</strong> #${orderId}</p>
+              <p style="margin: 5px 0;"><strong>Total Amount:</strong> ₹${totalAmount.toFixed(2)}</p>
+              <p style="margin: 5px 0;"><strong>Payment Method:</strong> ${paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online Payment'}</p>
+              <p style="margin: 5px 0;"><strong>Order Status:</strong> ${paymentMethod === 'cod' ? 'Confirmed' : 'Processing'}</p>
+            </div>
+            
+            <div style="background: #f0f8ff; padding: 20px; border-radius: 10px; margin: 20px 0;">
+              <h3 style="color: #333; margin-bottom: 15px;">Shipping Address</h3>
+              <p style="margin: 5px 0;">${shippingAddress.fullName}</p>
+              <p style="margin: 5px 0;">${shippingAddress.addressLine1}</p>
+              ${shippingAddress.addressLine2 ? `<p style="margin: 5px 0;">${shippingAddress.addressLine2}</p>` : ''}
+              <p style="margin: 5px 0;">${shippingAddress.city}, ${shippingAddress.state} - ${shippingAddress.postalCode}</p>
+              <p style="margin: 5px 0;">${shippingAddress.country}</p>
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px;">
+              <p style="color: #666; font-size: 14px;">Thank you for shopping with Anantra Fashion!</p>
+              <p style="color: #666; font-size: 12px; margin-top: 10px;">${paymentMethod === 'cod' ? 'You will pay when the order is delivered.' : 'We will process your payment and ship your order soon.'}</p>
+            </div>
+          </div>
+        `
+        
+        await sendEmail({
+          to: user.email,
+          subject: `Order Placed - #${orderId}`,
+          html: emailHtml,
+        })
+        
+        console.log('Order confirmation email sent to:', user.email)
+      }
+    } catch (emailError) {
+      console.error('Failed to send order confirmation email:', emailError)
+      // Don't fail the order creation if email fails
+    }
+
+    // For COD orders, clear the cart immediately
+    if (paymentMethod === 'cod') {
+      await Cart.findOneAndUpdate(
+        { userId: session.user.id },
+        { $set: { items: [], totalAmount: 0 } },
+      )
+
+      // Handle coupon usage for COD
+      if (coupon?.code) {
+        coupon.usedCount += 1
+        await coupon.save()
+        await CouponUsage.create({
+          userId: session.user.id,
+          couponId: coupon._id,
+        })
+      }
+
+      return NextResponse.json({
+        success: true,
+        data: {
+          orderId: order._id,
+          paymentMethod: 'cod',
+        },
+        message: 'COD order created successfully',
+      })
+    }
 
     return NextResponse.json({
       success: true,
       data: {
         orderId: order._id,
-        razorpayOrderId: razorpayOrder.orderId,
-        amount: razorpayOrder.amount,
-        currency: razorpayOrder.currency,
-        keyId: razorpayOrder.keyId,
+        razorpayOrderId: razorpayOrder!.orderId,
+        amount: razorpayOrder!.amount,
+        currency: razorpayOrder!.currency,
+        keyId: razorpayOrder!.keyId,
       },
       message: 'Checkout order created',
     })

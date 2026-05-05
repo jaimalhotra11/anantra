@@ -47,6 +47,20 @@ export default async function RootLayout({
   
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-KPXXHSVS95"></script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+
+              gtag('config', 'G-KPXXHSVS95');
+            `
+          }}
+        />
+      </head>
       <body
         className={`${abeezee.variable} ${aclonica.variable} ${lexendDeca.variable} ${cormorantGaramond.variable} ${geistSans.variable} ${geistMono.variable} antialiased flex`}
       >

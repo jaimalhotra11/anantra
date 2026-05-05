@@ -97,10 +97,6 @@ export async function GET(request: NextRequest) {
       query['variants.stockQuantity'] = { $gt: 0 }
       query['variants.isActive'] = true
     }
-
-    // Colors and Sizes filter - handle multiple combinations
-    console.log("colors in filter", colors)
-    console.log("sizes in filter", sizes)
     
     if (colors && colors.length > 0 || sizes && sizes.length > 0) {
       const attributeConditions = []

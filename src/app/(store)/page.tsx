@@ -71,7 +71,6 @@ async function getHomepageData(): Promise<HomepageData | null> {
     
     const result = await response.json()
 
-    console.log(result)
     return result.success ? result.data : null
   } catch (error) {
     console.error('Error fetching homepage data:', error)

@@ -57,7 +57,6 @@ export async function POST(request: NextRequest) {
     if (contentType && contentType.includes('multipart/form-data')) {
       const formData = await request.formData()
       
-      console.log(formData)
       // Extract banner data
       const bannerData = JSON.parse(formData.get('banner') as string)
       validatedBanner = heroBannerSchema.parse(bannerData)

@@ -31,8 +31,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             }
           }
 
-          console.log("calling after super admin")
-
           // Connect to database
           await connectDB()
 

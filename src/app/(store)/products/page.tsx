@@ -169,7 +169,6 @@ const ProductsPage = () => {
       const response = await fetch(endpoint)
       const result = await response.json()
 
-      console.log("result", result)
 
       if (!result.success) {
         throw new Error(result.error || 'Failed to load products')

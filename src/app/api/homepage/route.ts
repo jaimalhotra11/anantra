@@ -54,10 +54,6 @@ export async function GET(request: NextRequest) {
       return products.map(transformProduct)
     }
 
-    // Fetch products for both product groups
-    console.log('Product Group 1 Slugs:', settings?.productGroup1?.products)
-    console.log('Product Group 2 Slugs:', settings?.productGroup2?.products)
-    
     const [productGroup1Products, productGroup2Products] = await Promise.all([
       fetchAndTransformProducts(settings?.productGroup1?.products || []),
       fetchAndTransformProducts(settings?.productGroup2?.products || [])
@@ -71,9 +67,6 @@ export async function GET(request: NextRequest) {
       description: category.description || ''
     })
 
-
-    console.log(settings.announcementBar)
-    
     // Prepare homepage data
     const homepageData = {
       announcementBar: settings.announcementBar,

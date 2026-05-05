@@ -174,8 +174,6 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    console.log(validatedData)
-
     // Create new category
     const categoryData = {
       ...validatedData,

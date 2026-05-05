@@ -117,6 +117,7 @@ export interface Order {
   razorpayOrderId: string
   razorpayPaymentId?: string
   razorpaySignature?: string
+  paymentMethod: 'razorpay' | 'cod'
   paymentStatus:
   | 'created'
   | 'pending'
@@ -131,6 +132,9 @@ export interface Order {
   | 'cancelled'
   refundId?: string
   refundAmount?: number
+  adminRemarks?: string
+  trackingNumber? : string
+  estimatedDelivery?: string
   createdAt: string
   updatedAt: string
 }

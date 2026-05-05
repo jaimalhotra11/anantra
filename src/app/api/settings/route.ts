@@ -97,7 +97,6 @@ export async function POST(request: NextRequest) {
     await connectDB()
 
     const body = await request.json()
-    console.log("body",body)
     const validatedData = storeSettingsSchema.parse(body)
 
     // Find existing settings or create new ones

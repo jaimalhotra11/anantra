@@ -12,7 +12,6 @@ const Footer = () => {
     e.preventDefault()
     if (email) {
       // Handle newsletter subscription logic here
-      console.log('Newsletter subscription:', email)
       setIsSubscribed(true)
       setEmail('')
       setTimeout(() => setIsSubscribed(false), 3000)

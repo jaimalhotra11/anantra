@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
 import UserModel from '@/models/User';
+import { sendEmail } from '@/lib/resend';
 
 // In-memory OTP storage (in production, use Redis or database)
 const otpStore = new Map<string, { otp: string; expires: number; email: string }>();
@@ -70,14 +71,53 @@ export async function POST(request: Request) {
 
     await user.save();
 
-    // Log OTP for development (in production, send via email/SMS)
-    console.log(`OTP for ${email}: ${otp}`); // Remove this in production
+    // Send OTP via email
+    try {
+      const emailHtml = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="background: linear-gradient(135deg, #5F613A 0%, #7A7C4F 100%); color: white; padding: 30px; border-radius: 10px; text-align: center;">
+            <h1 style="margin: 0; font-size: 28px;">Email Verification</h1>
+            <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Verify your email address</p>
+          </div>
+          
+          <div style="background: #f9f9f9; padding: 20px; border-radius: 10px; margin: 20px 0;">
+            <h2 style="color: #333; margin-bottom: 15px;">Your Verification Code</h2>
+            <div style="background: #fff; padding: 20px; border: 2px dashed #5F613A; border-radius: 8px; text-align: center; margin: 20px 0;">
+              <p style="font-size: 32px; font-weight: bold; color: #5F613A; letter-spacing: 3px; margin: 0;">${otp}</p>
+            </div>
+            <p style="color: #666; line-height: 1.6; margin-top: 20px;">
+              Enter this 6-digit code to verify your email address. This code will expire in 5 minutes.
+            </p>
+          </div>
+          
+          <div style="background: #f0f8ff; padding: 20px; border-radius: 10px; margin: 20px 0;">
+            <h3 style="color: #333; margin-bottom: 15px;">Account Details</h3>
+            <p style="margin: 5px 0;"><strong>Email:</strong> ${email}</p>
+            <p style="margin: 5px 0;"><strong>Name:</strong> ${fullName}</p>
+            <p style="margin: 5px 0;"><strong>Phone:</strong> ${phone}</p>
+          </div>
+          
+          <div style="text-align: center; margin-top: 30px;">
+            <p style="color: #666; font-size: 14px;">Welcome to Anantra Fashion!</p>
+            <p style="color: #666; font-size: 12px; margin-top: 10px;">If you didn't request this verification, please ignore this email.</p>
+          </div>
+        </div>
+      `
+      
+      await sendEmail({
+        to: email,
+        subject: 'Verify Your Email - Anantra Fashion',
+        html: emailHtml,
+      })
+      
+      console.log('OTP email sent to:', email)
+    } catch (emailError) {
+      console.error('Failed to send OTP email:', emailError)
+      // Continue with user creation even if email fails
+    }
     
-    // For demo purposes, we'll include the OTP in the response
-    // In production, remove this and send via email/SMS
     return NextResponse.json({
       message: 'User created successfully. Please verify your email with the OTP sent.',
-      otp: otp, // Remove this in production
       userId: user._id,
       requiresVerification: true
     }, { status: 201 });
@@ -200,8 +240,43 @@ export async function PATCH(request: Request) {
     // Store new OTP
     otpStore.set(email, { otp, expires, email });
 
-    // Log OTP for development (in production, send via email/SMS)
-    console.log(`New OTP for ${email}: ${otp}`); // Remove this in production
+    // Send new OTP via email
+    try {
+      const emailHtml = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="background: linear-gradient(135deg, #5F613A 0%, #7A7C4F 100%); color: white; padding: 30px; border-radius: 10px; text-align: center;">
+            <h1 style="margin: 0; font-size: 28px;">New Verification Code</h1>
+            <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Here's your new OTP</p>
+          </div>
+          
+          <div style="background: #f9f9f9; padding: 20px; border-radius: 10px; margin: 20px 0;">
+            <h2 style="color: #333; margin-bottom: 15px;">Your New Verification Code</h2>
+            <div style="background: #fff; padding: 20px; border: 2px dashed #5F613A; border-radius: 8px; text-align: center; margin: 20px 0;">
+              <p style="font-size: 32px; font-weight: bold; color: #5F613A; letter-spacing: 3px; margin: 0;">${otp}</p>
+            </div>
+            <p style="color: #666; line-height: 1.6; margin-top: 20px;">
+              Enter this 6-digit code to verify your email address. This code will expire in 5 minutes.
+            </p>
+          </div>
+          
+          <div style="text-align: center; margin-top: 30px;">
+            <p style="color: #666; font-size: 14px;">Anantra Fashion Support</p>
+            <p style="color: #666; font-size: 12px; margin-top: 10px;">If you didn't request this code, please ignore this email.</p>
+          </div>
+        </div>
+      `
+      
+      await sendEmail({
+        to: email,
+        subject: 'New Verification Code - Anantra Fashion',
+        html: emailHtml,
+      })
+      
+      console.log('New OTP email sent to:', email)
+    } catch (emailError) {
+      console.error('Failed to send new OTP email:', emailError)
+      // Continue with response even if email fails
+    }
 
     return NextResponse.json({
       message: 'New OTP sent successfully',
