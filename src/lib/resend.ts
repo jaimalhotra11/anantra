@@ -12,7 +12,7 @@ export interface EmailOptions {
 
 export async function sendEmail(options: EmailOptions) {
   try {
-    const { from = process.env.RESEND_FROM_EMAIL || 'noreply@anantra.com', ...emailOptions } = options
+    const { from = process.env.RESEND_FROM_EMAIL || 'noreply@anantarafashion.com', ...emailOptions } = options
     
     const { data, error } = await resend.emails.send({
       from,

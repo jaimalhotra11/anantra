@@ -156,54 +156,8 @@ export async function POST(request: NextRequest) {
       paymentMethod,
     })
 
-    // Send order confirmation email for all orders
-    try {
-      const user = await User.findById(session.user.id).select('fullName email').lean()
-      if (user?.email) {
-        const orderId = order._id.toString().slice(-6)
-        const emailHtml = `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <div style="background: linear-gradient(135deg, #5F613A 0%, #7A7C4F 100%); color: white; padding: 30px; border-radius: 10px; text-align: center;">
-              <h1 style="margin: 0; font-size: 28px;">Order Placed Successfully!</h1>
-              <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Thank you for your purchase</p>
-            </div>
-            
-            <div style="background: #f9f9f9; padding: 20px; border-radius: 10px; margin: 20px 0;">
-              <h2 style="color: #333; margin-bottom: 15px;">Order Details</h2>
-              <p style="margin: 5px 0;"><strong>Order Number:</strong> #${orderId}</p>
-              <p style="margin: 5px 0;"><strong>Total Amount:</strong> ₹${totalAmount.toFixed(2)}</p>
-              <p style="margin: 5px 0;"><strong>Payment Method:</strong> ${paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online Payment'}</p>
-              <p style="margin: 5px 0;"><strong>Order Status:</strong> ${paymentMethod === 'cod' ? 'Confirmed' : 'Processing'}</p>
-            </div>
-            
-            <div style="background: #f0f8ff; padding: 20px; border-radius: 10px; margin: 20px 0;">
-              <h3 style="color: #333; margin-bottom: 15px;">Shipping Address</h3>
-              <p style="margin: 5px 0;">${shippingAddress.fullName}</p>
-              <p style="margin: 5px 0;">${shippingAddress.addressLine1}</p>
-              ${shippingAddress.addressLine2 ? `<p style="margin: 5px 0;">${shippingAddress.addressLine2}</p>` : ''}
-              <p style="margin: 5px 0;">${shippingAddress.city}, ${shippingAddress.state} - ${shippingAddress.postalCode}</p>
-              <p style="margin: 5px 0;">${shippingAddress.country}</p>
-            </div>
-            
-            <div style="text-align: center; margin-top: 30px;">
-              <p style="color: #666; font-size: 14px;">Thank you for shopping with Anantra Fashion!</p>
-              <p style="color: #666; font-size: 12px; margin-top: 10px;">${paymentMethod === 'cod' ? 'You will pay when the order is delivered.' : 'We will process your payment and ship your order soon.'}</p>
-            </div>
-          </div>
-        `
-        
-        await sendEmail({
-          to: user.email,
-          subject: `Order Placed - #${orderId}`,
-          html: emailHtml,
-        })
-        
-        console.log('Order confirmation email sent to:', user.email)
-      }
-    } catch (emailError) {
-      console.error('Failed to send order confirmation email:', emailError)
-      // Don't fail the order creation if email fails
-    }
+    // Order created successfully - no email sent here
+    console.log('Order created successfully for user:', session.user.id)
 
     // For COD orders, clear the cart immediately
     if (paymentMethod === 'cod') {
