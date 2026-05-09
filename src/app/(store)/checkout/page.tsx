@@ -140,7 +140,7 @@ const CheckoutPage = () => {
     }
   }
 
-  const deliveryFee = subtotal < 2000 ? 100 : 0
+  const deliveryFee = subtotal < 2000 ? 0 : 0
   const codConvenienceFee = paymentMethod === 'cod' ? 25 : 0
   const total = Math.max(0, subtotal - (appliedCoupon?.discount || 0) + deliveryFee + codConvenienceFee)
 
@@ -492,7 +492,7 @@ const CheckoutPage = () => {
                         {deliveryFee === 0 ? (
                           <span className='text-green-600'>FREE</span>
                         ) : (
-                          `₹${deliveryFee.toFixed(2)}`
+                          `₹${deliveryFee}`
                         )}
                       </span>
                     </div>
