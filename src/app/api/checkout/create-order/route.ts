@@ -115,7 +115,7 @@ export async function POST(request: NextRequest) {
       discount = coupon.calculateDiscount(subtotal)
     }
 
-    const shippingCharge = subtotal < 2000 ? 100 : 0
+    const shippingCharge = subtotal < 2000 ? 0 : 0
     const codConvenienceFee = paymentMethod === 'cod' ? 25 : 0
     const totalAmount = Math.max(0, subtotal - discount + shippingCharge + codConvenienceFee)
 
