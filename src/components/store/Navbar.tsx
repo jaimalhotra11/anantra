@@ -160,10 +160,11 @@ const Navbar = () => {
                   <ChevronDown className="h-4 w-4" />
                 </button>
                 <div className="pl-4 mt-2 space-y-1">
-                  <Link href="/categories" className="block py-2 text-sm text-[--brand-primary] hover:text-[--brand-primary-hover] font-sans">Women</Link>
-                  <Link href="/categories" className="block py-2 text-sm text-[--brand-primary] hover:text-[--brand-primary-hover] font-sans">Men</Link>
-                  <Link href="/categories" className="block py-2 text-sm text-[--brand-primary] hover:text-[--brand-primary-hover] font-sans">Kids</Link>
-                  <Link href="/categories" className="block py-2 text-sm text-[--brand-primary] hover:text-[--brand-primary-hover] font-sans">Accessories</Link>
+                  <Link href="/categories/a-line-kurtis" className="block py-2 text-sm text-[--brand-primary] hover:text-[--brand-primary-hover] font-sans">A Line of Kurtis</Link>
+                  <Link href="/categories/co-ord-sets" className="block py-2 text-sm text-[--brand-primary] hover:text-[--brand-primary-hover] font-sans">Co-ord Sets</Link>
+                  <Link href="/categories/short-kurtis" className="block py-2 text-sm text-[--brand-primary] hover:text-[--brand-primary-hover] font-sans">Short Kurtis</Link>
+                  <Link href="/categories/long-kurtis" className="block py-2 text-sm text-[--brand-primary] hover:text-[--brand-primary-hover] font-sans">Long Kurtis</Link>
+                  <Link href="/categories/bottoms" className="block py-2 text-sm text-[--brand-primary] hover:text-[--brand-primary-hover] font-sans">Bottoms</Link>
                 </div>
               </div>
 
