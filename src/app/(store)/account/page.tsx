@@ -20,7 +20,35 @@ interface Order {
   orderStatus: string
   paymentStatus: string
   createdAt: string
-  items: { title: string; quantity: number }[]
+  items: {
+    title: string
+    quantity: number
+    price: number
+    total: number
+    product?: {
+      image?: string
+    title?: string
+    category?: string
+    variantId?: string
+    meta?: any
+    _id: string
+  }
+  }[]
+  shippingAddress?: {
+    fullName: string
+    phone: string
+    addressLine1: string
+    addressLine2?: string
+    city: string
+    state: string
+    country: string
+    postalCode: string
+  }
+  paymentMethod?: string
+  razorpayOrderId?: string
+  subtotal?: number
+  discount?: number
+  shippingCharge?: number
 }
 
 interface Address {
@@ -288,13 +316,17 @@ const AccountPage = () => {
               <p className='text-sm'>Start shopping to see your orders here!</p>
             </div>
           ) : (
-            <div className='space-y-3'>
+            <div className='space-y-4'>
               {orders.slice(0, 10).map((order) => (
                 <div key={order._id} className='bg-background/50 border border-border/50 rounded-lg p-4 hover:shadow-md transition-all duration-200'>
-                  <div className='flex flex-wrap justify-between items-start gap-4'>
+                  {/* Order Header */}
+                  <div className='flex flex-wrap justify-between items-start gap-4 mb-4 pb-4 border-b border-border/30'>
                     <div className='space-y-1'>
                       <p className='font-medium text-foreground'>Order #{order._id.slice(-6)}</p>
                       <p className='text-sm text-muted-foreground'>{new Date(order.createdAt).toLocaleDateString()}</p>
+                      {order.paymentMethod && (
+                        <p className='text-sm text-muted-foreground'>Payment: {order.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online Payment'}</p>
+                      )}
                     </div>
                     <div className='text-right space-y-1'>
                       <p className='font-semibold text-foreground'>₹{order.totalAmount?.toFixed(2)}</p>
@@ -312,6 +344,100 @@ const AccountPage = () => {
                         }`}>
                           {order.paymentStatus}
                         </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Order Items */}
+                  <div className='space-y-3'>
+                    <h4 className='font-medium text-foreground mb-3'>Ordered Items</h4>
+                    {order.items && order.items.length > 0 ? (
+                      <div className='space-y-2'>
+                        {order.items.map((item, index) => (
+                          <div key={index} className='flex items-center gap-4 p-3 bg-background/30 rounded-lg'>
+                            {/* Product Image */}
+                            <div className='w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0'>
+                              {item.product?.image ? (
+                                <img 
+                                  src={item.product.image} 
+                                  alt={item.product.title || item.title}
+                                  className='w-full h-full object-cover'
+                                />
+                              ) : (
+                                <div className='w-full h-full flex items-center justify-center text-gray-400'>
+                                  <Package className='h-6 w-6' />
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Item Details */}
+                            <div className='flex-1 min-w-0'>
+                              <h5 className='font-medium text-foreground truncate'>
+                                {item.product?.title || item.title}
+                              </h5>
+                              <div className='flex items-center gap-4 text-sm text-muted-foreground mt-1'>
+                                <span>Qty: {item.quantity}</span>
+                                <span>₹{item.price?.toFixed(2)} each</span>
+                              </div>
+                            </div>
+
+                            {/* Item Total */}
+                            <div className='text-right'>
+                              <p className='font-semibold text-foreground'>
+                                ₹{item.total?.toFixed(2)}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className='text-sm text-muted-foreground'>No items found in this order.</p>
+                    )}
+                  </div>
+
+                  {/* Shipping Address */}
+                  {order.shippingAddress && (
+                    <div className='mt-4 pt-4 border-t border-border/30'>
+                      <h4 className='font-medium text-foreground mb-3'>Shipping Address</h4>
+                      <div className='text-sm text-muted-foreground space-y-1'>
+                        <p>{order.shippingAddress.fullName}</p>
+                        <p>{order.shippingAddress.phone}</p>
+                        <p>
+                          {order.shippingAddress.addressLine1}
+                          {order.shippingAddress.addressLine2 && `, ${order.shippingAddress.addressLine2}`}
+                        </p>
+                        <p>
+                          {order.shippingAddress.city}, {order.shippingAddress.state} - {order.shippingAddress.postalCode}
+                        </p>
+                        <p>{order.shippingAddress.country}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Order Summary */}
+                  <div className='mt-4 pt-4 border-t border-border/30'>
+                    <div className='flex justify-between text-sm space-y-1'>
+                      {order.subtotal && (
+                        <div className='flex justify-between w-full'>
+                          <span className='text-muted-foreground'>Subtotal:</span>
+                          <span className='text-foreground'>₹{order.subtotal.toFixed(2)}</span>
+                        </div>
+                      )}
+                      {order.discount && order.discount > 0 && (
+                        <div className='flex justify-between w-full'>
+                          <span className='text-muted-foreground'>Discount:</span>
+                          <span className='text-green-600'>-₹{order.discount.toFixed(2)}</span>
+                        </div>
+                      )}
+                      {order.shippingCharge && (
+                        <div className='flex justify-between w-full'>
+                          <span className='text-muted-foreground'>Shipping:</span>
+                          <span className='text-foreground'>₹{order.shippingCharge.toFixed(2)}</span>
+                        </div>
+                      )}
+                      <div className='flex justify-between w-full font-semibold pt-2 border-t border-border/30'>
+                        <span className='text-foreground'>Total:</span>
+                        <span className='text-foreground'>₹{order.totalAmount?.toFixed(2)}</span>
                       </div>
                     </div>
                   </div>
