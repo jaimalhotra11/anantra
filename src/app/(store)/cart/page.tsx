@@ -136,7 +136,7 @@ const CartPage = () => {
     () => cartItems.reduce((sum, item) => sum + item.priceAtTime * item.quantity, 0),
     [cartItems],
   )
-  const deliveryFee = subtotal < 2000 ? 100 : 0
+  const deliveryFee = subtotal < 2000 ? 0 : 0
   const total = subtotal + deliveryFee
 
   if (loading) {
