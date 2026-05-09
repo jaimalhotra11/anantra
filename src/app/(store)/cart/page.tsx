@@ -289,7 +289,7 @@ const CartPage = () => {
                         {deliveryFee === 0 ? (
                           <span className='text-green-600'>FREE</span>
                         ) : (
-                          `₹${deliveryFee.toFixed(2)}`
+                          `₹${deliveryFee}`
                         )}
                       </span>
                     </div>
