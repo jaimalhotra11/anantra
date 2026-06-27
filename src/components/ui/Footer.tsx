@@ -151,12 +151,6 @@ const Footer = () => {
               <li>
                 <a href="#" className="text-white hover:text-white transition-colors flex items-center">
                   <ChevronRight className="w-4 h-4 mr-2" />
-                  Men's Fashion
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-white hover:text-white transition-colors flex items-center">
-                  <ChevronRight className="w-4 h-4 mr-2" />
                   Accessories
                 </a>
               </li>
@@ -173,22 +167,22 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">Contact Info</h3>
             <div className="space-y-3">
-              <div className="flex items-center space-x-3">
-                <MapPin className="w-5 h-5 text-white" />
+              <div className="flex items-start space-x-3">
+                <MapPin className="w-5 h-5 text-white shrink-0 mt-0.5" />
                 <span className="text-white text-sm">
-                  123 Fashion Street, Style City, SC 12345
+                  A-13, Old Double Storey, Block A, Lajpat Nagar 4, Lajpat Nagar, New Delhi-110024
                 </span>
               </div>
               <div className="flex items-center space-x-3">
                 <Phone className="w-5 h-5 text-white" />
                 <span className="text-white text-sm">
-                  +1 (555) 123-4567
+                  +91-8527313188
                 </span>
               </div>
               <div className="flex items-center space-x-3">
                 <Mail className="w-5 h-5 text-white" />
                 <span className="text-white text-sm">
-                  support@anantra-fashion.com
+                  anantara.india1@gmail.com
                 </span>
               </div>
             </div>

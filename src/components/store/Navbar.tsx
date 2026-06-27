@@ -47,10 +47,12 @@ const Navbar = () => {
               {/* Navigation Links */}
               <div className="flex items-center space-x-8">
                 {/* Shop Dropdown */}
-                <div className="relative">
+                <div
+                  className="relative"
+                  onMouseEnter={() => setIsShopDropdownOpen(true)}
+                  onMouseLeave={() => setIsShopDropdownOpen(false)}
+                >
                   <button
-                    onMouseEnter={() => setIsShopDropdownOpen(true)}
-                    onMouseLeave={() => setIsShopDropdownOpen(false)}
                     className="flex items-center space-x-1 text-[var(--brand-primary)] hover:text-[var(--brand-primary-hover)] transition-colors"
                   >
                     <span className="font-medium font-sans">Shop</span>
@@ -58,11 +60,7 @@ const Navbar = () => {
                   </button>
 
                   {isShopDropdownOpen && (
-                    <div
-                      onMouseEnter={() => setIsShopDropdownOpen(true)}
-                      onMouseLeave={() => setIsShopDropdownOpen(false)}
-                      className="absolute top-full left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2 z-50"
-                    >
+                    <div className="absolute top-full left-0 w-48 bg-white rounded-md shadow-lg py-2 z-50">
                       <Link href="/categories/a-line-kurtis" className="block px-4 py-2 text-sm text-[var(--brand-primary)] hover:text-white hover:bg-[var(--brand-primary)] hover:bg-opacity-10 font-sans">A Line of Kurtis</Link>
                       <Link href="/categories/co-ord-sets" className="block px-4 py-2 text-sm text-[var(--brand-primary)] hover:text-white hover:bg-[var(--brand-primary)] hover:bg-opacity-10 font-sans">Co-ord Sets</Link>
                       <Link href="/categories/short-kurtis" className="block px-4 py-2 text-sm text-[var(--brand-primary)] hover:text-white hover:bg-[var(--brand-primary)] hover:bg-opacity-10 font-sans">Short Kurtis</Link>
@@ -72,7 +70,6 @@ const Navbar = () => {
                   )}
                 </div>
 
-                <Link href="/products" className="text-[var(--brand-primary)] hover:text-[var(--brand-primary-hover)] transition-colors font-medium font-sans">On Sale</Link>
                 <Link href="/products" className="text-[var(--brand-primary)] hover:text-[var(--brand-primary-hover)] transition-colors font-medium font-sans">New Arrivals</Link>
                 <Link href="/categories" className="text-[var(--brand-primary)] hover:text-[var(--brand-primary-hover)] transition-colors font-medium font-sans">Categories</Link>
                 <Link href="/wholesale-enquiry" className="text-[var(--brand-primary)] hover:text-[var(--brand-primary-hover)] transition-colors font-medium font-sans">Wholesale</Link>
@@ -168,7 +165,6 @@ const Navbar = () => {
                 </div>
               </div>
 
-              <Link href="/products" className="block py-2 text-[--brand-primary] hover:text-[--brand-primary-hover] transition-colors font-medium font-sans">On Sale</Link>
               <Link href="/products" className="block py-2 text-[--brand-primary] hover:text-[--brand-primary-hover] transition-colors font-medium font-sans">New Arrivals</Link>
               <Link href="/categories" className="block py-2 text-[--brand-primary] hover:text-[--brand-primary-hover] transition-colors font-medium font-sans">Categories</Link>
               <Link href="/wholesale-enquiry" className="block py-2 text-[--brand-primary] hover:text-[--brand-primary-hover] transition-colors font-medium font-sans">Wholesale</Link>

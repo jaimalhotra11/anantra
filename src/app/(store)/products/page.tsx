@@ -17,7 +17,7 @@ interface CategoryOption {
 
 interface FilterState {
   priceRange: [number, number]
-  colors: { name: string, hex: string, value: string }[]
+  colors: string[]
   sizes: string[]
   categories: string[]
 }
@@ -301,7 +301,7 @@ const ProductsPage = () => {
                   <div key={color.value} className='flex items-center space-x-2'>
                     <Checkbox
                       id={`color-${color.value}`}
-                      checked={filters.colors.includes((color as any).value)}
+                      checked={filters.colors.includes(color.value)}
                       onCheckedChange={() => handleFilterChange('colors', color.value)}
                     />
                     <label
@@ -481,7 +481,7 @@ const ProductsPage = () => {
                       <div key={color.value} className='flex items-center space-x-2'>
                         <Checkbox
                           id={`mobile-color-${color.value}`}
-                          checked={filters.colors.includes((color as any).value)}
+                          checked={filters.colors.includes(color.value)}
                           onCheckedChange={() => handleFilterChange('colors', color.value)}
                         />
                         <label
