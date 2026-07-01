@@ -102,17 +102,17 @@ const FeaturedProductCardSlider: React.FC<FeaturedProductCardSliderProps> = ({
                             <ProductCard product={product} />
                         </SwiperSlide>
                     ))}
-                    
-                    {collectionSlug && (
-                        <SwiperSlide className='flex items-center justify-center'>
-                            <Link href={`/products?collection=${collectionSlug}`}>
-                                <button className='px-6 py-2.5 border-2 border-(--brand-primary) text-(--brand-primary) rounded-full font-medium text-sm hover:bg-(--brand-primary) hover:text-white transition-colors duration-300'>
-                                    View All
-                                </button>
-                            </Link>
-                        </SwiperSlide>
-                    )}
                 </Swiper>
+
+                {collectionSlug && (
+                    <div className='flex justify-center mt-2'>
+                        <Link href={`/products?collection=${collectionSlug}`}>
+                            <button className='px-6 py-2.5 border-2 border-(--brand-primary) text-(--brand-primary) rounded-full font-medium text-sm hover:bg-(--brand-primary) hover:text-white transition-colors duration-300'>
+                                View All
+                            </button>
+                        </Link>
+                    </div>
+                )}
 
                 {/* Custom Navigation Arrows */}
                 {showArrows && products.length > 1 && (

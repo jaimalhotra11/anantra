@@ -93,7 +93,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       onMouseLeave={() => setIsHovered(false)}
     >
       <Link href={`/products/${product.slug}`}>
-        <div className='relative h-64 sm:h-96 md:h-80 flex items-center justify-center overflow-hidden'>
+        <div className='relative h-96 sm:h-96 md:h-80 flex items-center justify-center overflow-hidden'>
           {/* Discount Badge */}
           {/* {product.discount && (
             <span className='absolute top-3 left-3 text-neutral-800 text-xs font-semibold px-3 py-1 rounded-full z-10 shadow-sm'>
