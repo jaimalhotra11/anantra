@@ -128,7 +128,8 @@ const AccountPage = () => {
     }
 
     loadDashboardData()
-  }, [session?.user, status, router])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.user, status])
 
   const totalSpent = useMemo(
     () => orders.reduce((sum, order) => sum + (order.totalAmount || 0), 0),
@@ -137,6 +138,7 @@ const AccountPage = () => {
 
   const addAddress = async () => {
     try {
+      setError(null)
       const response = await fetch('/api/user/addresses', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -146,8 +148,6 @@ const AccountPage = () => {
       if (!result.success) throw new Error(result.error || 'Failed to add address')
       setAddresses(result.data)
       setForm(initialAddress)
-      // Reload dashboard data to show updated information
-      await loadDashboardData()
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : 'Failed to add address')
     }
@@ -155,12 +155,11 @@ const AccountPage = () => {
 
   const deleteAddress = async (addressId: string) => {
     try {
+      setError(null)
       const response = await fetch(`/api/user/addresses/${addressId}`, { method: 'DELETE' })
       const result = await response.json()
       if (!result.success) throw new Error(result.error || 'Failed to delete address')
       setAddresses(result.data)
-      // Reload dashboard data to show updated information
-      await loadDashboardData()
     } catch (deleteError) {
       setError(deleteError instanceof Error ? deleteError.message : 'Failed to delete address')
     }

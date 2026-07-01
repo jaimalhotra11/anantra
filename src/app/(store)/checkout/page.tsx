@@ -455,9 +455,9 @@ const CheckoutPage = () => {
             <div className='sticky top-8 space-y-6'>
               {/* Order Summary Card */}
               <div className='bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-xl border border-gray-100 overflow-hidden'>
-                <div className='p-6'>
-                  <h3 className='text-xl font-bold text-white mb-2'>Order Summary</h3>
-                  <p className='text-primary/100 text-sm'>{cartItems.length} items ready to checkout</p>
+                <div className='p-6 border-b border-gray-100'>
+                  <h3 className='text-xl font-bold text-gray-900 mb-2'>Order Summary</h3>
+                  <p className='text-primary text-sm'>{cartItems.length} items ready to checkout</p>
                 </div>
                 
                 <div className='p-6 space-y-4'>
