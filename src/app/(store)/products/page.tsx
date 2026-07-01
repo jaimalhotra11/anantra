@@ -70,6 +70,8 @@ const ProductsPage = () => {
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState<string>('')
   const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const [priceMinStr, setPriceMinStr] = useState('')
+  const [priceMaxStr, setPriceMaxStr] = useState('')
 
   // Debounce search query
   useEffect(() => {
@@ -255,16 +257,22 @@ const ProductsPage = () => {
                   <Input
                     type='number'
                     placeholder='Min'
-                    value={filters.priceRange[0]}
-                    onChange={(e) => handleFilterChange('priceRange', [parseInt(e.target.value) || 0, filters.priceRange[1]])}
+                    value={priceMinStr}
+                    onChange={(e) => {
+                      setPriceMinStr(e.target.value)
+                      handleFilterChange('priceRange', [parseInt(e.target.value) || 0, filters.priceRange[1]])
+                    }}
                     className='w-24'
                   />
                   <span className='text-muted-foreground'>-</span>
                   <Input
                     type='number'
                     placeholder='Max'
-                    value={filters.priceRange[1]}
-                    onChange={(e) => handleFilterChange('priceRange', [filters.priceRange[0], parseInt(e.target.value) || 5000])}
+                    value={priceMaxStr}
+                    onChange={(e) => {
+                      setPriceMaxStr(e.target.value)
+                      handleFilterChange('priceRange', [filters.priceRange[0], parseInt(e.target.value) || 5000])
+                    }}
                     className='w-24'
                   />
                 </div>
@@ -435,16 +443,22 @@ const ProductsPage = () => {
                       <Input
                         type='number'
                         placeholder='Min'
-                        value={filters.priceRange[0]}
-                        onChange={(e) => handleFilterChange('priceRange', [parseInt(e.target.value) || 0, filters.priceRange[1]])}
+                        value={priceMinStr}
+                        onChange={(e) => {
+                          setPriceMinStr(e.target.value)
+                          handleFilterChange('priceRange', [parseInt(e.target.value) || 0, filters.priceRange[1]])
+                        }}
                         className='w-24'
                       />
                       <span className='text-muted-foreground'>-</span>
                       <Input
                         type='number'
                         placeholder='Max'
-                        value={filters.priceRange[1]}
-                        onChange={(e) => handleFilterChange('priceRange', [filters.priceRange[0], parseInt(e.target.value) || 5000])}
+                        value={priceMaxStr}
+                        onChange={(e) => {
+                          setPriceMaxStr(e.target.value)
+                          handleFilterChange('priceRange', [filters.priceRange[0], parseInt(e.target.value) || 5000])
+                        }}
                         className='w-24'
                       />
                     </div>

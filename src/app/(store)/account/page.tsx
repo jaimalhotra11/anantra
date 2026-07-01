@@ -137,6 +137,12 @@ const AccountPage = () => {
   )
 
   const addAddress = async () => {
+    const requiredFields: (keyof typeof form)[] = ['fullName', 'phone', 'addressLine1', 'city', 'state', 'country', 'postalCode']
+    const missing = requiredFields.filter((f) => !form[f]?.toString().trim())
+    if (missing.length > 0) {
+      setError('Please fill in all required fields: ' + missing.join(', '))
+      return
+    }
     try {
       setError(null)
       const response = await fetch('/api/user/addresses', {
@@ -462,59 +468,66 @@ const AccountPage = () => {
           <div className='bg-background/50 border border-border/50 rounded-lg p-4 space-y-4'>
             <h3 className='font-medium text-foreground'>Add New Address</h3>
             <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
-              <input 
-                placeholder='Label (e.g., Home, Work)' 
-                value={form.label} 
-                onChange={(event) => setForm((prev) => ({ ...prev, label: event.target.value }))} 
-                className='border border-border rounded-lg px-3 py-2 bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200' 
+              <input
+                placeholder='Label (e.g., Home, Work)'
+                value={form.label}
+                onChange={(event) => setForm((prev) => ({ ...prev, label: event.target.value }))}
+                className='border border-border rounded-lg px-3 py-2 bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200'
               />
-              <input 
-                placeholder='Full name' 
-                value={form.fullName} 
-                onChange={(event) => setForm((prev) => ({ ...prev, fullName: event.target.value }))} 
-                className='border border-border rounded-lg px-3 py-2 bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200' 
+              <input
+                placeholder='Full name *'
+                value={form.fullName}
+                onChange={(event) => setForm((prev) => ({ ...prev, fullName: event.target.value }))}
+                className='border border-border rounded-lg px-3 py-2 bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200'
+                required
               />
-              <input 
-                placeholder='Phone number' 
-                value={form.phone} 
-                onChange={(event) => setForm((prev) => ({ ...prev, phone: event.target.value }))} 
-                className='border border-border rounded-lg px-3 py-2 bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200' 
+              <input
+                placeholder='Phone number *'
+                value={form.phone}
+                onChange={(event) => setForm((prev) => ({ ...prev, phone: event.target.value }))}
+                className='border border-border rounded-lg px-3 py-2 bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200'
+                required
               />
-              <input 
-                placeholder='Address line 1' 
-                value={form.addressLine1} 
-                onChange={(event) => setForm((prev) => ({ ...prev, addressLine1: event.target.value }))} 
-                className='border border-border rounded-lg px-3 py-2 bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200' 
+              <input
+                placeholder='Address line 1 *'
+                value={form.addressLine1}
+                onChange={(event) => setForm((prev) => ({ ...prev, addressLine1: event.target.value }))}
+                className='border border-border rounded-lg px-3 py-2 bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200'
+                required
               />
-              <input 
-                placeholder='Address line 2 (optional)' 
-                value={form.addressLine2} 
-                onChange={(event) => setForm((prev) => ({ ...prev, addressLine2: event.target.value }))} 
-                className='border border-border rounded-lg px-3 py-2 bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200' 
+              <input
+                placeholder='Address line 2 (optional)'
+                value={form.addressLine2}
+                onChange={(event) => setForm((prev) => ({ ...prev, addressLine2: event.target.value }))}
+                className='border border-border rounded-lg px-3 py-2 bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200'
               />
-              <input 
-                placeholder='City' 
-                value={form.city} 
-                onChange={(event) => setForm((prev) => ({ ...prev, city: event.target.value }))} 
-                className='border border-border rounded-lg px-3 py-2 bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200' 
+              <input
+                placeholder='City *'
+                value={form.city}
+                onChange={(event) => setForm((prev) => ({ ...prev, city: event.target.value }))}
+                className='border border-border rounded-lg px-3 py-2 bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200'
+                required
               />
-              <input 
-                placeholder='State' 
-                value={form.state} 
-                onChange={(event) => setForm((prev) => ({ ...prev, state: event.target.value }))} 
-                className='border border-border rounded-lg px-3 py-2 bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200' 
+              <input
+                placeholder='State *'
+                value={form.state}
+                onChange={(event) => setForm((prev) => ({ ...prev, state: event.target.value }))}
+                className='border border-border rounded-lg px-3 py-2 bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200'
+                required
               />
-              <input 
-                placeholder='Country' 
-                value={form.country} 
-                onChange={(event) => setForm((prev) => ({ ...prev, country: event.target.value }))} 
-                className='border border-border rounded-lg px-3 py-2 bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200' 
+              <input
+                placeholder='Country *'
+                value={form.country}
+                onChange={(event) => setForm((prev) => ({ ...prev, country: event.target.value }))}
+                className='border border-border rounded-lg px-3 py-2 bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200'
+                required
               />
-              <input 
-                placeholder='Postal code' 
-                value={form.postalCode} 
-                onChange={(event) => setForm((prev) => ({ ...prev, postalCode: event.target.value }))} 
-                className='border border-border rounded-lg px-3 py-2 bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200' 
+              <input
+                placeholder='Postal code *'
+                value={form.postalCode}
+                onChange={(event) => setForm((prev) => ({ ...prev, postalCode: event.target.value }))}
+                className='border border-border rounded-lg px-3 py-2 bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200'
+                required
               />
             </div>
             <button 

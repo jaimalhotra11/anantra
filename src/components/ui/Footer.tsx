@@ -1,6 +1,6 @@
 "use client"
 import React, { useState } from 'react'
-import { Facebook, Instagram, Youtube, Mail, Phone, MapPin, ChevronRight } from 'lucide-react'
+import { Facebook, Instagram, Youtube, Mail, Phone, MapPin, ChevronRight, Twitter } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -14,13 +14,23 @@ const Footer = () => {
   const [email, setEmail] = useState('')
   const [isSubscribed, setIsSubscribed] = useState(false)
 
-  const handleSubscribe = (e: React.FormEvent) => {
+  const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (email) {
-      // Handle newsletter subscription logic here
-      setIsSubscribed(true)
-      setEmail('')
-      setTimeout(() => setIsSubscribed(false), 3000)
+    if (!email) return
+    try {
+      const res = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+      const result = await res.json()
+      if (result.success) {
+        setIsSubscribed(true)
+        setEmail('')
+        setTimeout(() => setIsSubscribed(false), 3000)
+      }
+    } catch {
+      // silently fail — subscription email issue shouldn't break the page
     }
   }
 
@@ -91,6 +101,9 @@ const Footer = () => {
               </a>
               <a href="https://www.youtube.com/@anantara_diaries" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors">
                 <Youtube className="w-5 h-5" />
+              </a>
+              <a href="https://x.com/anantara_diary1" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors">
+                <Twitter className="w-5 h-5" />
               </a>
             </div>
           </div>

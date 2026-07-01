@@ -17,12 +17,10 @@ const wholesaleEnquirySchema = z.object({
         country: z.string().min(1, 'Country is required'),
         postalCode: z.string().min(1, 'Postal code is required'),
     }),
-    taxId: z.string().optional(),
+    gst: z.string().min(1, 'GST number is required'),
     website: z.string().url().optional().or(z.literal('')).optional(),
-    productCategories: z.array(z.string()).min(1, 'At least one product category is required'),
-    estimatedOrderVolume: z.enum(['small', 'medium', 'large', 'enterprise']),
     orderFrequency: z.enum(['weekly', 'monthly', 'quarterly', 'seasonal', 'one_time']),
-    message: z.string().min(10, 'Message must be at least 10 characters').max(1000, 'Message cannot exceed 1000 characters'),
+    message: z.string().max(1000, 'Message cannot exceed 1000 characters').optional(),
     priority: z.enum(['low', 'medium', 'high']).optional(),
 })
 

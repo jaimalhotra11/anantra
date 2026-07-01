@@ -9,7 +9,6 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { toast } from 'sonner'
 import { Loader2, Building2, User, Mail, Phone, MapPin, Globe, FileText } from 'lucide-react'
@@ -27,12 +26,10 @@ const wholesaleEnquirySchema = z.object({
         country: z.string().min(1, 'Country is required'),
         postalCode: z.string().min(1, 'Postal code is required'),
     }),
-    taxId: z.string().optional(),
+    gst: z.string().min(1, 'GST number is required'),
     website: z.string().url().optional().or(z.literal('')).optional(),
-    productCategories: z.array(z.string()).min(1, 'At least one product category is required'),
-    estimatedOrderVolume: z.enum(['small', 'medium', 'large', 'enterprise']),
     orderFrequency: z.enum(['weekly', 'monthly', 'quarterly', 'seasonal', 'one_time']),
-    message: z.string().min(10, 'Message must be at least 10 characters').max(1000, 'Message cannot exceed 1000 characters'),
+    message: z.string().max(1000, 'Message cannot exceed 1000 characters').optional(),
     priority: z.enum(['low', 'medium', 'high']).optional(),
 })
 
@@ -45,24 +42,6 @@ const businessTypes = [
     { value: 'distributor', label: 'Distributor' },
     { value: 'manufacturer', label: 'Manufacturer' },
     { value: 'other', label: 'Other' },
-]
-
-const productCategories = [
-    'Clothing',
-    'Accessories',
-    'Footwear',
-    'Handbags',
-    'Jewelry',
-    'Home Decor',
-    'Textiles',
-    'Other'
-]
-
-const orderVolumes = [
-    { value: 'small', label: 'Small (Under $5,000/month)' },
-    { value: 'medium', label: 'Medium ($5,000 - $20,000/month)' },
-    { value: 'large', label: 'Large ($20,000 - $50,000/month)' },
-    { value: 'enterprise', label: 'Enterprise (Over $50,000/month)' },
 ]
 
 const orderFrequencies = [
@@ -86,12 +65,9 @@ export default function WholesaleEnquiryForm() {
     } = useForm<WholesaleEnquiryForm>({
         resolver: zodResolver(wholesaleEnquirySchema),
         defaultValues: {
-            productCategories: [],
             priority: 'medium',
         },
     })
-
-    const selectedCategories = watch('productCategories')
 
     const onSubmit = async (data: WholesaleEnquiryForm) => {
         setIsSubmitting(true)
@@ -122,15 +98,6 @@ export default function WholesaleEnquiryForm() {
             toast.error('An error occurred while submitting your enquiry')
         } finally {
             setIsSubmitting(false)
-        }
-    }
-
-    const handleCategoryChange = (category: string, checked: boolean) => {
-        const currentCategories = selectedCategories || []
-        if (checked) {
-            setValue('productCategories', [...currentCategories, category])
-        } else {
-            setValue('productCategories', currentCategories.filter(c => c !== category))
         }
     }
 
@@ -242,12 +209,15 @@ export default function WholesaleEnquiryForm() {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="taxId">Tax ID (Optional)</Label>
+                                    <Label htmlFor="gst">GST Number *</Label>
                                     <Input
-                                        id="taxId"
-                                        {...register('taxId')}
-                                        placeholder="Your tax identification number"
+                                        id="gst"
+                                        {...register('gst')}
+                                        placeholder="Your GST number"
                                     />
+                                    {errors.gst && (
+                                        <p className="text-sm text-destructive">{errors.gst.message}</p>
+                                    )}
                                 </div>
                             </div>
 
@@ -338,75 +308,27 @@ export default function WholesaleEnquiryForm() {
                             </div>
                         </div>
 
-                        {/* Product Categories */}
-                        <div className="space-y-4">
-                            <h3 className="text-lg font-semibold">Product Categories *</h3>
-                            <p className="text-sm text-muted-foreground">
-                                Select all product categories you're interested in
-                            </p>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                                {productCategories.map((category) => (
-                                    <div key={category} className="flex items-center space-x-2">
-                                        <Checkbox
-                                            id={category}
-                                            checked={selectedCategories.includes(category)}
-                                            onCheckedChange={(checked) => 
-                                                handleCategoryChange(category, checked as boolean)
-                                            }
-                                        />
-                                        <Label htmlFor={category} className="text-sm font-normal">
-                                            {category}
-                                        </Label>
-                                    </div>
-                                ))}
-                            </div>
-                            {errors.productCategories && (
-                                <p className="text-sm text-destructive">{errors.productCategories.message}</p>
-                            )}
-                        </div>
-
                         {/* Order Information */}
                         <div className="space-y-4">
                             <h3 className="text-lg font-semibold">Order Information</h3>
-                            
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="estimatedOrderVolume">Estimated Order Volume *</Label>
-                                    <Select onValueChange={(value) => setValue('estimatedOrderVolume', value as any)}>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select order volume" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {orderVolumes.map((volume) => (
-                                                <SelectItem key={volume.value} value={volume.value}>
-                                                    {volume.label}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    {errors.estimatedOrderVolume && (
-                                        <p className="text-sm text-destructive">{errors.estimatedOrderVolume.message}</p>
-                                    )}
-                                </div>
 
-                                <div className="space-y-2">
-                                    <Label htmlFor="orderFrequency">Order Frequency *</Label>
-                                    <Select onValueChange={(value) => setValue('orderFrequency', value as any)}>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select frequency" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {orderFrequencies.map((frequency) => (
-                                                <SelectItem key={frequency.value} value={frequency.value}>
-                                                    {frequency.label}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    {errors.orderFrequency && (
-                                        <p className="text-sm text-destructive">{errors.orderFrequency.message}</p>
-                                    )}
-                                </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="orderFrequency">Order Frequency *</Label>
+                                <Select onValueChange={(value) => setValue('orderFrequency', value as any)}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select frequency" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {orderFrequencies.map((frequency) => (
+                                            <SelectItem key={frequency.value} value={frequency.value}>
+                                                {frequency.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                {errors.orderFrequency && (
+                                    <p className="text-sm text-destructive">{errors.orderFrequency.message}</p>
+                                )}
                             </div>
                         </div>
 
@@ -417,7 +339,7 @@ export default function WholesaleEnquiryForm() {
                                 Additional Information
                             </h3>
                             <div className="space-y-2">
-                                <Label htmlFor="message">Message *</Label>
+                                <Label htmlFor="message">Message (Optional)</Label>
                                 <Textarea
                                     id="message"
                                     {...register('message')}

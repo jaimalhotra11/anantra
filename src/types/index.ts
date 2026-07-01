@@ -9,6 +9,8 @@ export interface User {
   isVerified: boolean,
   verificationToken?: string,
   verificationTokenExpiry?: Date,
+  passwordResetToken?: string,
+  passwordResetTokenExpiry?: Date,
   createdAt: string,
   updatedAt: string,
 }

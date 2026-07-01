@@ -34,22 +34,14 @@ const WholesaleEnquirySchema = new mongoose.Schema({
         country: { type: String, required: true },
         postalCode: { type: String, required: true },
     },
-    taxId: {
+    gst: {
         type: String,
+        required: [true, 'GST number is required'],
         trim: true,
     },
     website: {
         type: String,
         trim: true,
-    },
-    productCategories: [{
-        type: String,
-        required: true,
-    }],
-    estimatedOrderVolume: {
-        type: String,
-        required: [true, 'Estimated order volume is required'],
-        enum: ['small', 'medium', 'large', 'enterprise'],
     },
     orderFrequency: {
         type: String,
@@ -58,7 +50,6 @@ const WholesaleEnquirySchema = new mongoose.Schema({
     },
     message: {
         type: String,
-        required: [true, 'Message is required'],
         maxlength: [1000, 'Message cannot exceed 1000 characters'],
     },
     status: {
