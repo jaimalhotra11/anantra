@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { sendEmail } from '@/lib/resend'
+import Newsletter from '@/models/Newsletter'
+import mongoose from 'mongoose'
 
 export async function POST(request: NextRequest) {
   try {
@@ -8,6 +10,16 @@ export async function POST(request: NextRequest) {
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json({ success: false, error: 'Valid email is required' }, { status: 400 })
     }
+
+    if (mongoose.connection.readyState !== 1) {
+      await mongoose.connect(process.env.MONGODB_URI!)
+    }
+
+    await Newsletter.findOneAndUpdate(
+      { email: email.toLowerCase().trim() },
+      { $setOnInsert: { email: email.toLowerCase().trim() }, $set: { status: 'subscribed' } },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    )
 
     await sendEmail({
       to: email,

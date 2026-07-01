@@ -16,6 +16,7 @@ import {
   SearchCode,
   FolderOpen,
   Building2,
+  MailPlus,
 } from "lucide-react";
 import {
   Sidebar,
@@ -165,6 +166,11 @@ const managementItems = [
     title: "Wholesale Enquiries",
     url: "/admin/wholesale-enquiries",
     icon: Building2,
+  },
+  {
+    title: "Newsletter Subscribers",
+    url: "/admin/newsletters",
+    icon: MailPlus,
   },
 ];
 

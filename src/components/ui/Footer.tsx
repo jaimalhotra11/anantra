@@ -113,10 +113,10 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2">
               <li>
-                <a href="#" className="text-white hover:text-white transition-colors flex items-center">
+                <Link href="/about-us" className="text-white hover:text-white transition-colors flex items-center">
                   <ChevronRight className="w-4 h-4 mr-2" />
                   About Us
-                </a>
+                </Link>
               </li>
               <li>
                 <a href="#" className="white hover:text-white transition-colors flex items-center">
@@ -125,28 +125,28 @@ const Footer = () => {
                 </a>
               </li>
               <li>
-                <a href="#" className="white hover:text-white transition-colors flex items-center">
+                <Link href="/privacy-policy" className="white hover:text-white transition-colors flex items-center">
                   <ChevronRight className="w-4 h-4 mr-2" />
                   Privacy Policy
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="white hover:text-white transition-colors flex items-center">
+                <Link href="/return-exchange-policy" className="white hover:text-white transition-colors flex items-center">
                   <ChevronRight className="w-4 h-4 mr-2" />
-                  Terms & Conditions
-                </a>
+                  Return & Exchange Policy
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-white hover:text-white transition-colors flex items-center">
+                <Link href="/wholesale-enquiry" className="text-white hover:text-white transition-colors flex items-center">
                   <ChevronRight className="w-4 h-4 mr-2" />
                   Wholesale Enquiry
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-white hover:text-white transition-colors flex items-center">
+                <Link href="/faqs" className="text-white hover:text-white transition-colors flex items-center">
                   <ChevronRight className="w-4 h-4 mr-2" />
                   FAQ
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -217,9 +217,9 @@ const Footer = () => {
               2026 ANANTRA Fashion. All rights reserved.
             </div>
             <div className="flex space-x-6">
-              <a href="#" className="text-white/60 hover:text-white text-sm transition-colors">
+              <Link href="/privacy-policy" className="text-white/60 hover:text-white text-sm transition-colors">
                 Privacy Policy
-              </a>
+              </Link>
               <a href="#" className="text-white/60 hover:text-white text-sm transition-colors">
                 Terms of Service
               </a>
