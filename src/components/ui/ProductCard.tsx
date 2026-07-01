@@ -150,7 +150,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           </h3>
 
           {/* Rating - supports decimal values with half-star rendering */}
-          <div className='flex items-center space-x-1'>
+          {/* <div className='flex items-center space-x-1'>
             {new Array(5).fill(0).map((_, index) => {
               const fill = Math.min(Math.max(product.rating - index, 0), 1) // clamp to 0–1 per star
               const uniqueId = `half-star-${product.id}-${index}`
@@ -177,7 +177,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 </svg>
               )
             })}
-          </div>
+          </div> */}
 
           {/* Price */}
           <div className='flex items-center space-x-2'>
