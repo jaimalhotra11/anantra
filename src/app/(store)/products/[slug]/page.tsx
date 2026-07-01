@@ -788,10 +788,10 @@ const ProductPage = () => {
           <div className="max-w-6xl mx-auto">
             {/* Tab Navigation */}
             <div className="border-b border-gray-200 mb-8">
-              <nav className="flex justify-evenly space-x-8 md:space-x-12">
+              <nav className="flex justify-evenly">
                 <button
                   onClick={() => setActiveTab('description')}
-                  className={`py-4 px-6 border-b-2 font-medium w-full items-center justify-center  text-slgm transition-colors whitespace-nowrap flex-1 ${
+                  className={`py-3 px-2 sm:py-4 sm:px-6 border-b-2 font-medium items-center justify-center text-xs sm:text-sm md:text-lg transition-colors flex-1 text-center ${
                     activeTab === 'description'
                       ? 'border-(--brand-primary) text-(--brand-primary)'
                       : 'border-transparent text-gray-500 hover:text-gray-700'
@@ -801,17 +801,17 @@ const ProductPage = () => {
                 </button>
                 <button
                   onClick={() => setActiveTab('reviews')}
-                  className={`py-4 w-full items-center justify-center text-lg px-6 border-b-2 font-medium transition-colors whitespace-nowrap  flex-1 ${
+                  className={`py-3 px-2 sm:py-4 sm:px-6 border-b-2 font-medium items-center justify-center text-xs sm:text-sm md:text-lg transition-colors flex-1 text-center ${
                     activeTab === 'reviews'
                       ? 'border-(--brand-primary) text-(--brand-primary)'
                       : 'border-transparent text-gray-500 hover:text-gray-700'
                   }`}
                 >
-                  Reviews 
+                  Reviews
                 </button>
                 <button
                   onClick={() => setActiveTab('shipping')}
-                  className={`py-4 px-6 w-full items-center justify-center  border-b-2 font-medium text-lg transition-colors whitespace-nowrap flex-1 ${
+                  className={`py-3 px-2 sm:py-4 sm:px-6 border-b-2 font-medium items-center justify-center text-xs sm:text-sm md:text-lg transition-colors flex-1 text-center ${
                     activeTab === 'shipping'
                       ? 'border-(--brand-primary) text-(--brand-primary)'
                       : 'border-transparent text-gray-500 hover:text-gray-700'

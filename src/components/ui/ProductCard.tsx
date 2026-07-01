@@ -88,7 +88,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
   return (
     <div
-      className='group mx-auto w-[160px] sm:w-[280px] md:w-[250px] lg:w-[250px] relative rounded-lg overflow-hidden bg-background transition-all duration-300'
+      className='group mx-auto w-full max-w-[280px] relative rounded-lg overflow-hidden bg-background transition-all duration-300'
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >

@@ -88,7 +88,9 @@ const Navbar = () => {
                   onChange={(event) => setSearchQuery(event.target.value)}
                   className="w-64 px-4 py-1 pr-10 border border-(--brand-primary) rounded-full focus:outline-none focus:ring-2 focus:ring-(--brand-primary) focus:border-transparent text-(--brand-primary) text-sm font-sans"
                 />
-                <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-(--brand-primary)" />
+                <button type="submit" className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                  <Search className="h-5 w-5 text-(--brand-primary)" />
+                </button>
               </form>
 
               {/* Icons */}
@@ -123,7 +125,7 @@ const Navbar = () => {
             </button>
 
             {/* Logo */}
-            <div className="flex-1 flex ml-4">
+            <Link href="/" className="flex-1 flex ml-4">
               <Image
                 src="/logo.png"
                 alt="Anantra Fashion"
@@ -131,11 +133,15 @@ const Navbar = () => {
                 height={35}
                 className="h-8 w-auto"
               />
-            </div>
+            </Link>
 
             {/* Mobile Icons */}
             <div className="flex items-center space-x-2">
-              <button type="button" className="p-2 text-[var(--brand-primary)] hover:text-[var(--brand-primary-hover)] transition-colors">
+              <button
+                type="button"
+                onClick={() => setIsMobileMenuOpen(true)}
+                className="p-2 text-[var(--brand-primary)] hover:text-[var(--brand-primary-hover)] transition-colors"
+              >
                 <Search className="h-5 w-5" />
               </button>
               <Link href="/cart" className="relative p-2 text-[var(--brand-primary)] hover:text-[var(--brand-primary-hover)] transition-colors">
@@ -169,7 +175,9 @@ const Navbar = () => {
         >
           {/* Drawer Header */}
           <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200">
-            <Image src="/logo.png" alt="Anantra Fashion" width={100} height={35} className="h-8 w-auto" />
+            <Link href="/" onClick={closeMobileMenu}>
+              <Image src="/logo.png" alt="Anantra Fashion" width={100} height={35} className="h-8 w-auto" />
+            </Link>
             <button
               onClick={closeMobileMenu}
               className="p-2 text-[var(--brand-primary)] hover:text-[var(--brand-primary-hover)] transition-colors"
