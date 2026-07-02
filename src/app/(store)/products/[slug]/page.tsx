@@ -66,7 +66,7 @@ const ProductPage = () => {
   const handleBack = () => {
     router.back()
   }
-  
+
   const [quantity, setQuantity] = useState(1)
   const [selectedVariant, setSelectedVariant] = useState('')
   const [selectedSize, setSelectedSize] = useState('')
@@ -80,7 +80,7 @@ const ProductPage = () => {
   const [newReview, setNewReview] = useState({ rating: 5, comment: '', name: '', email: '' })
   const [reviewImages, setReviewImages] = useState<File[]>([])
   const [submittingReview, setSubmittingReview] = useState(false)
-  
+
   // API states
   const [product, setProduct] = useState<Product | null>(null)
   const [loading, setLoading] = useState(true)
@@ -96,26 +96,26 @@ const ProductPage = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       if (!slug) return
-      
+
       try {
         setLoading(true)
         const response = await fetch(`/api/products/${slug}`)
-        
+
         if (!response.ok) {
           throw new Error('Product not found')
         }
-        
+
         const result = await response.json()
-        
+
         if (result.success && result.data) {
           setProduct(result.data)
-        // Set default color and size if available
-        if (result.data.variants && result.data.variants.length > 0) {
-          const firstVariant = result.data.variants[0]
-          const displayInfo = getVariantDisplayInfo(firstVariant)
-          if (displayInfo.color) setSelectedColor(displayInfo.color)
-          if (displayInfo.size) setSelectedSize(displayInfo.size)
-        }
+          // Set default color and size if available
+          if (result.data.variants && result.data.variants.length > 0) {
+            const firstVariant = result.data.variants[0]
+            const displayInfo = getVariantDisplayInfo(firstVariant)
+            if (displayInfo.color) setSelectedColor(displayInfo.color)
+            if (displayInfo.size) setSelectedSize(displayInfo.size)
+          }
         } else {
           throw new Error(result.error || 'Failed to fetch product')
         }
@@ -159,16 +159,16 @@ const ProductPage = () => {
   // Helper functions for reviews
   const getReviewStats = () => {
     if (reviews.length === 0) return { average: 0, total: 0, distribution: [0, 0, 0, 0, 0] }
-    
+
     const total = reviews.length
     const sum = reviews.reduce((acc, review) => acc + review.rating, 0)
     const average = sum / total
-    
+
     const distribution = [0, 0, 0, 0, 0]
     reviews.forEach(review => {
       distribution[review.rating - 1]++
     })
-    
+
     return { average, total, distribution }
   }
 
@@ -295,14 +295,14 @@ const ProductPage = () => {
         stock: 'In Stock'
       }
     }
-    
+
     const colorAttr = variant.attributes.find((attr: any) => attr.name.toLowerCase() === 'color')
     const sizeAttr = variant.attributes.find((attr: any) => attr.name.toLowerCase() === 'size')
-    
+
     return {
       color: colorAttr?.value || '',
       size: sizeAttr?.value || '',
-      stock: variant.trackQuantity && variant.stockQuantity !== undefined 
+      stock: variant.trackQuantity && variant.stockQuantity !== undefined
         ? variant.stockQuantity > 2 ? 'In Stock' : `Only ${variant.stockQuantity} left`
         : 'In Stock'
     }
@@ -323,6 +323,8 @@ const ProductPage = () => {
     (reviewPage - 1) * reviewsPerPage,
     reviewPage * reviewsPerPage
   )
+
+  console.log("displayedReviews", displayedReviews)
 
   const incrementQuantity = () => setQuantity(prev => prev + 1)
   const decrementQuantity = () => setQuantity(prev => Math.max(1, prev - 1))
@@ -376,21 +378,21 @@ const ProductPage = () => {
 
   const handleAddToCart = async () => {
     if (!product) return
-    
+
     // Check if both color and size are selected
     const hasColors = getAvailableColors().length > 0
     const hasSizes = getAvailableSizes().length > 0
-    
+
     if (hasColors && !selectedColor) {
       setCartMessage('Please select a color')
       return
     }
-    
+
     if (hasSizes && !selectedSize) {
       setCartMessage('Please select a size')
       return
     }
-    
+
     const currentVariant = getCurrentVariant()
     if (!currentVariant) {
       setCartMessage('Selected combination not available')
@@ -490,12 +492,12 @@ const ProductPage = () => {
       for (const file of reviewImages) {
         const formData = new FormData()
         formData.append('file', file)
-        
+
         const uploadResponse = await fetch('/api/upload', {
           method: 'POST',
           body: formData
         })
-        
+
         if (uploadResponse.ok) {
           const uploadResult = await uploadResponse.json()
           if (uploadResult.success) {
@@ -532,12 +534,12 @@ const ProductPage = () => {
       if (result.success) {
         // Refresh reviews list
         await fetchReviews()
-        
+
         // Reset form
         setShowReviewForm(false)
         setNewReview({ rating: 5, comment: '', name: '', email: '' })
         setReviewImages([])
-        
+
         alert('Review submitted successfully!')
       } else {
         alert(result.error || 'Failed to submit review')
@@ -626,7 +628,7 @@ const ProductPage = () => {
               </div>
             </div>
 
-             {/* Size Chart Button */}
+            {/* Size Chart Button */}
             {product.sizeChartImage && (
               <div className="flex justify-start">
                 <button
@@ -668,13 +670,12 @@ const ProductPage = () => {
                       <button
                         key={color}
                         onClick={() => setSelectedColor(color)}
-                        className={`px-4 flex items-center justify-center gap-2 py-2 border rounded-md transition-colors ${
-                          selectedColor === color
+                        className={`px-4 flex items-center justify-center gap-2 py-2 border rounded-md transition-colors ${selectedColor === color
                             ? 'border-black bg-(--brand-primary) text-white'
                             : 'border-gray-300 hover:border-gray-400'
-                        }`}
+                          }`}
                       >
-                        <span className={`w-4 h-4 rounded-full`} style={{backgroundColor: color.toLowerCase()}}></span>
+                        <span className={`w-4 h-4 rounded-full`} style={{ backgroundColor: color.toLowerCase() }}></span>
                         <span>{color}</span>
                       </button>
                     )
@@ -697,13 +698,12 @@ const ProductPage = () => {
                         key={size}
                         onClick={() => setSelectedSize(size)}
                         disabled={!isAvailable}
-                        className={`px-4 py-2 border rounded-md transition-colors relative ${
-                          selectedSize === size
+                        className={`px-4 py-2 border rounded-md transition-colors relative ${selectedSize === size
                             ? 'border-black bg-(--brand-primary) text-white'
                             : isAvailable
-                            ? 'border-gray-300 hover:border-gray-400'
-                            : 'border-gray-200 border-2 border-dashed bg-gray-100/40 text-gray-400/60 cursor-not-allowed'
-                        }`}
+                              ? 'border-gray-300 hover:border-gray-400'
+                              : 'border-gray-200 border-2 border-dashed bg-gray-100/40 text-gray-400/60 cursor-not-allowed'
+                          }`}
                       >
                         {size}
                       </button>
@@ -721,7 +721,7 @@ const ProductPage = () => {
               </div>
             )}
 
-           
+
 
             {/* Quantity & Add to Cart */}
             <div className="space-y-4">
@@ -810,7 +810,7 @@ const ProductPage = () => {
                 <X className="w-5 h-5" />
               </button>
               <h3 className="text-xl font-semibold mb-4 p-6 pb-0">Size Chart</h3>
-              
+
               {product.sizeChartImage ? (
                 <div className="p-6">
                   <div className="relative w-full">
@@ -867,31 +867,28 @@ const ProductPage = () => {
               <nav className="flex justify-evenly">
                 <button
                   onClick={() => setActiveTab('description')}
-                  className={`py-3 px-2 sm:py-4 sm:px-6 border-b-2 font-medium items-center justify-center text-xs sm:text-sm md:text-lg transition-colors flex-1 text-center ${
-                    activeTab === 'description'
+                  className={`py-3 px-2 sm:py-4 sm:px-6 border-b-2 font-medium items-center justify-center text-xs sm:text-sm md:text-lg transition-colors flex-1 text-center ${activeTab === 'description'
                       ? 'border-(--brand-primary) text-(--brand-primary)'
                       : 'border-transparent text-gray-500 hover:text-gray-700'
-                  }`}
+                    }`}
                 >
                   Product Details
                 </button>
                 <button
                   onClick={() => setActiveTab('reviews')}
-                  className={`py-3 px-2 sm:py-4 sm:px-6 border-b-2 font-medium items-center justify-center text-xs sm:text-sm md:text-lg transition-colors flex-1 text-center ${
-                    activeTab === 'reviews'
+                  className={`py-3 px-2 sm:py-4 sm:px-6 border-b-2 font-medium items-center justify-center text-xs sm:text-sm md:text-lg transition-colors flex-1 text-center ${activeTab === 'reviews'
                       ? 'border-(--brand-primary) text-(--brand-primary)'
                       : 'border-transparent text-gray-500 hover:text-gray-700'
-                  }`}
+                    }`}
                 >
                   Reviews
                 </button>
                 <button
                   onClick={() => setActiveTab('shipping')}
-                  className={`py-3 px-2 sm:py-4 sm:px-6 border-b-2 font-medium items-center justify-center text-xs sm:text-sm md:text-lg transition-colors flex-1 text-center ${
-                    activeTab === 'shipping'
+                  className={`py-3 px-2 sm:py-4 sm:px-6 border-b-2 font-medium items-center justify-center text-xs sm:text-sm md:text-lg transition-colors flex-1 text-center ${activeTab === 'shipping'
                       ? 'border-(--brand-primary) text-(--brand-primary)'
                       : 'border-transparent text-gray-500 hover:text-gray-700'
-                  }`}
+                    }`}
                 >
                   Shipping & Delivery
                 </button>
@@ -952,7 +949,7 @@ const ProductPage = () => {
 
                     {/* Review Distribution */}
                     <div className="mt-6 space-y-2">
-                      {[1,2,3,4,5].map((rating) => {
+                      {[1, 2, 3, 4, 5].map((rating) => {
                         const count = getReviewStats().distribution[rating - 1]
                         const percentage = reviews.length > 0 ? (count / reviews.length) * 100 : 0
                         return (
@@ -993,7 +990,7 @@ const ProductPage = () => {
                                   <span className="text-sm font-medium">{review.user?.fullName?.charAt(0) || 'A'}</span>
                                 </div>
                                 <div>
-                                  <p className="font-medium">{review.user?.fullName || 'Anonymous'}</p>
+                                  <p className="font-medium">{review.userId?.fullName || 'Anonymous'}</p>
                                   <div className="flex items-center space-x-2">
                                     <div className="flex items-center">
                                       {[...Array(5)].map((_, i) => (
@@ -1033,8 +1030,8 @@ const ProductPage = () => {
                               key={i + 1}
                               onClick={() => setReviewPage(i + 1)}
                               className={`px-3 py-1 border rounded-md transition-colors ${reviewPage === i + 1
-                                  ? 'bg-(--brand-primary) text-white'
-                                  : 'hover:bg-gray-50'
+                                ? 'bg-(--brand-primary) text-white'
+                                : 'hover:bg-gray-50'
                                 }`}
                             >
                               {i + 1}
@@ -1148,11 +1145,10 @@ const ProductPage = () => {
                       <button
                         key={rating}
                         onClick={() => setNewReview({ ...newReview, rating })}
-                        className={`p-3 rounded-full transition-all duration-200 hover:scale-110 ${
-                          rating <= newReview.rating 
-                            ? 'bg-(--brand-primary) text-white shadow-lg' 
+                        className={`p-3 rounded-full transition-all duration-200 hover:scale-110 ${rating <= newReview.rating
+                            ? 'bg-(--brand-primary) text-white shadow-lg'
                             : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
-                        }`}
+                          }`}
                       >
                         <Star className={`w-8 h-8 ${rating <= newReview.rating ? 'fill-current' : ''}`} />
                       </button>
