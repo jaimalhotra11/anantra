@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
 import { toProductCardItem, type ProductListItem } from '@/lib/storefront'
 import { ArrowLeft, Filter, Loader2 } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 interface CategoryOption {
   _id: string
@@ -41,14 +42,14 @@ const COLORS = [
   { name: "Beige", value: "Beige", hex: "#F5F5DC" },
 ]
 
-const SIZES = ["XS",
-  "S",
-  "M",
-  "L",
-  "XL",
-  "XXL",
-  "XXXL",
-  "XXXXL"]
+const SIZES = [{ name: "XS", value: "Extra Small" },
+  { name: "S", value: "Small" },
+  { name: "M", value: "Medium" },
+  { name: "L", value: "Large" },
+  { name: "XL", value: "Extra Large" },
+  { name: "XXL", value: "XXL" },
+  { name: "XXXL", value: "XXXL" },
+  ]
 
 const ProductsPage = () => {
   const searchParams = useSearchParams()
@@ -72,6 +73,16 @@ const ProductsPage = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [priceMinStr, setPriceMinStr] = useState('')
   const [priceMaxStr, setPriceMaxStr] = useState('')
+  const [isApplyHovered, setIsApplyHovered] = useState(false)
+
+  const hasSelectedFilters =
+    filters.colors.length > 0 ||
+    filters.sizes.length > 0 ||
+    filters.categories.length > 0 ||
+    filters.priceRange[0] > 0 ||
+    filters.priceRange[1] < 5000
+
+  const isApplyActive = hasSelectedFilters || isApplyHovered
 
   // Debounce search query
   useEffect(() => {
@@ -328,24 +339,30 @@ const ProductsPage = () => {
               <h3 className='font-medium text-foreground mb-3'>Sizes</h3>
               <div className='grid grid-cols-3 gap-2'>
                 {SIZES.map((size) => (
-                  <div key={size} className='flex items-center space-x-2'>
+                  <div key={size.value} className='flex items-center space-x-2'>
                     <Checkbox
                       id={`size-${size}`}
-                      checked={filters.sizes.includes(size)}
-                      onCheckedChange={() => handleFilterChange('sizes', size)}
+                      checked={filters.sizes.includes(size.value)}
+                      onCheckedChange={() => handleFilterChange('sizes', size.value)}
                     />
                     <label
                       htmlFor={`size-${size}`}
                       className='text-sm text-muted-foreground cursor-pointer'
                     >
-                      {size}
+                      {size.name}
                     </label>
                   </div>
                 ))}
               </div>
             </div>
 
-            <Button onClick={applyFilters} className='w-full'>
+            <Button
+              onClick={() => isApplyActive && applyFilters()}
+              onMouseEnter={() => setIsApplyHovered(true)}
+              onMouseLeave={() => setIsApplyHovered(false)}
+              aria-disabled={!isApplyActive}
+              className={cn('w-full', !isApplyActive && 'opacity-50 cursor-not-allowed')}
+            >
               Apply Filter
             </Button>
           </div>
@@ -410,7 +427,7 @@ const ProductsPage = () => {
       {isFilterOpen && (
         <div className='fixed inset-0 z-50 lg:hidden'>
           {/* Backdrop */}
-          <div 
+          <div
             className='absolute inset-0 bg-black/50'
             onClick={() => setIsFilterOpen(false)}
           />
@@ -420,7 +437,7 @@ const ProductsPage = () => {
             <div className='flex justify-center py-2'>
               <div className='w-12 h-1 bg-muted-foreground/30 rounded-full' />
             </div>
-            
+
             {/* Filter Content */}
             <div className='px-6 pb-6 max-h-[80vh] overflow-y-auto'>
               <div className='flex items-center justify-between mb-6'>
@@ -514,29 +531,33 @@ const ProductsPage = () => {
                   <h3 className='font-medium text-foreground mb-3'>Sizes</h3>
                   <div className='grid grid-cols-3 gap-2'>
                     {SIZES.map((size) => (
-                      <div key={size} className='flex items-center space-x-2'>
+                      <div key={size.value} className='flex items-center space-x-2'>
                         <Checkbox
                           id={`mobile-size-${size}`}
-                          checked={filters.sizes.includes(size)}
-                          onCheckedChange={() => handleFilterChange('sizes', size)}
+                          checked={filters.sizes.includes(size.value)}
+                          onCheckedChange={() => handleFilterChange('sizes', size.value)}
                         />
                         <label
                           htmlFor={`mobile-size-${size}`}
                           className='text-sm text-muted-foreground cursor-pointer'
                         >
-                          {size}
+                          {size.name}
                         </label>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                <Button 
+                <Button
                   onClick={() => {
+                    if (!isApplyActive) return
                     applyFilters()
                     setIsFilterOpen(false)
-                  }} 
-                  className='w-full'
+                  }}
+                  onMouseEnter={() => setIsApplyHovered(true)}
+                  onMouseLeave={() => setIsApplyHovered(false)}
+                  aria-disabled={!isApplyActive}
+                  className={cn('w-full', !isApplyActive && 'opacity-50 cursor-not-allowed')}
                 >
                   Apply Filter
                 </Button>

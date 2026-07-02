@@ -8,6 +8,7 @@ import { useSession } from 'next-auth/react'
 import { addGuestCartItem, setPendingCartItem } from '@/lib/storefront'
 import { toast } from 'sonner'
 import { useCart } from '@/contexts/CartContext'
+import { useWishlist } from '@/contexts/WishlistContext'
 
 interface ProductCardProps {
   product: {
@@ -26,8 +27,36 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const [isHovered, setIsHovered] = useState(false)
   const [isAddingToCart, setIsAddingToCart] = useState(false)
+  const [isTogglingWishlist, setIsTogglingWishlist] = useState(false)
   const { data: session } = useSession()
   const { refreshCart } = useCart()
+  const { isInWishlist, toggleWishlist } = useWishlist()
+
+  const handleToggleWishlist = async (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault()
+    event.stopPropagation()
+
+    if (isTogglingWishlist) return
+
+    if (!session?.user) {
+      toast.info('Please sign in to use your wishlist')
+      setTimeout(() => {
+        window.location.href = '/auth/sign-in'
+      }, 1000)
+      return
+    }
+
+    setIsTogglingWishlist(true)
+    const result = await toggleWishlist(product.id)
+    setIsTogglingWishlist(false)
+
+    if (!result.success) {
+      toast.error(result.error || 'Failed to update wishlist')
+      return
+    }
+
+    toast.success(result.added ? 'Added to wishlist' : 'Removed from wishlist')
+  }
 
   const handleQuickAdd = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
@@ -112,8 +141,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           {/* Action Buttons - Appear on Hover */}
           <div className={`absolute top-3 right-3 flex flex-col space-y-2 transition-all duration-300 z-10 ${isHovered ? 'opacity-100' : 'opacity-0'
             }`}>
-            <button className='p-2 bg-white rounded-full shadow-md hover:bg-neutral-100 transition-all duration-300 hover:scale-110'>
-              <Heart className='h-4 w-4 text-neutral-600 hover:text-red-500' />
+            <button
+              onClick={handleToggleWishlist}
+              disabled={isTogglingWishlist}
+              aria-label={isInWishlist(product.id) ? 'Remove from wishlist' : 'Add to wishlist'}
+              className='p-2 bg-white rounded-full shadow-md hover:bg-neutral-100 transition-all duration-300 hover:scale-110 disabled:opacity-60 disabled:cursor-not-allowed'
+            >
+              <Heart
+                className={`h-4 w-4 ${isInWishlist(product.id) ? 'fill-red-500 text-red-500' : 'text-neutral-600 hover:text-red-500'}`}
+              />
             </button>
             <button className='p-2 bg-white rounded-full shadow-md hover:bg-neutral-100 transition-all duration-300 hover:scale-110'>
               <Eye className='h-4 w-4 text-neutral-600' />

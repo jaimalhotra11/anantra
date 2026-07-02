@@ -9,6 +9,8 @@ import { Heart, Share2, Truck, Shield, RotateCcw, Minus, Plus, ShoppingBag, Chev
 import { useSession } from 'next-auth/react'
 import { addGuestCartItem } from '@/lib/storefront'
 import { useCart } from '@/contexts/CartContext'
+import { useWishlist } from '@/contexts/WishlistContext'
+import { toast } from 'sonner'
 
 interface Product {
   _id: string
@@ -58,6 +60,8 @@ const ProductPage = () => {
   const router = useRouter()
   const { data: session } = useSession()
   const { refreshCart } = useCart()
+  const { isInWishlist, toggleWishlist } = useWishlist()
+  const [wishlistLoading, setWishlistLoading] = useState(false)
 
   const handleBack = () => {
     router.back()
@@ -196,6 +200,12 @@ const ProductPage = () => {
         }
       }
     }
+    if (!selectedColor && selectedSize && getAvailableColors().length === 0) {
+      const variant = getVariantBySize(selectedSize)
+      if (variant) {
+        setSelectedVariant(variant._id)
+      }
+    }
   }, [selectedColor, selectedSize, product])
 
   const getCurrentVariant = () => {
@@ -269,6 +279,14 @@ const ProductPage = () => {
     })
   }
 
+  const getVariantBySize = (size: string) => {
+    if (!product) return null
+    return product.variants.find(variant => {
+      const sizeAttr = variant.attributes.find((attr: any) => attr.name.toLowerCase() === 'size')
+      return sizeAttr?.value === size
+    })
+  }
+
   const getVariantDisplayInfo = (variant: any) => {
     if (!variant || !variant.attributes) {
       return {
@@ -308,6 +326,53 @@ const ProductPage = () => {
 
   const incrementQuantity = () => setQuantity(prev => prev + 1)
   const decrementQuantity = () => setQuantity(prev => Math.max(1, prev - 1))
+
+  const handleToggleWishlist = async () => {
+    if (!product) return
+
+    if (!session?.user) {
+      toast.info('Please sign in to use your wishlist')
+      router.push(`/auth/sign-in?redirect=/products/${slug}`)
+      return
+    }
+
+    if (wishlistLoading) return
+
+    setWishlistLoading(true)
+    const result = await toggleWishlist(product._id)
+    setWishlistLoading(false)
+
+    if (!result.success) {
+      toast.error(result.error || 'Failed to update wishlist')
+      return
+    }
+
+    toast.success(result.added ? 'Added to wishlist' : 'Removed from wishlist')
+  }
+
+  const handleShare = async () => {
+    if (!product) return
+
+    const shareUrl = `${window.location.origin}/products/${product.slug}`
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: product.title, url: shareUrl })
+      } catch (err) {
+        if ((err as Error).name !== 'AbortError') {
+          toast.error('Failed to share')
+        }
+      }
+      return
+    }
+
+    try {
+      await navigator.clipboard.writeText(shareUrl)
+      toast.success('Link copied to clipboard')
+    } catch (err) {
+      toast.error('Failed to copy link')
+    }
+  }
 
   const handleAddToCart = async () => {
     if (!product) return
@@ -689,10 +754,21 @@ const ProductPage = () => {
                   <ShoppingBag className="w-5 h-5" />
                   <span>{cartLoading ? 'Adding...' : 'Add to Cart'}</span>
                 </button>
-                <button className="p-3 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
-                  <Heart className="w-5 h-5" />
+                <button
+                  onClick={handleToggleWishlist}
+                  disabled={wishlistLoading}
+                  aria-label={product && isInWishlist(product._id) ? 'Remove from wishlist' : 'Add to wishlist'}
+                  className="p-3 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  <Heart
+                    className={`w-5 h-5 ${product && isInWishlist(product._id) ? 'fill-red-500 text-red-500' : ''}`}
+                  />
                 </button>
-                <button className="p-3 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+                <button
+                  onClick={handleShare}
+                  aria-label="Share product"
+                  className="p-3 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+                >
                   <Share2 className="w-5 h-5" />
                 </button>
               </div>
@@ -876,8 +952,8 @@ const ProductPage = () => {
 
                     {/* Review Distribution */}
                     <div className="mt-6 space-y-2">
-                      {[5, 4, 3, 2, 1].map((rating) => {
-                        const count = getReviewStats().distribution[5 - rating]
+                      {[1,2,3,4,5].map((rating) => {
+                        const count = getReviewStats().distribution[rating - 1]
                         const percentage = reviews.length > 0 ? (count / reviews.length) * 100 : 0
                         return (
                           <div key={rating} className="flex items-center space-x-3">

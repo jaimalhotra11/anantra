@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import SessionProvider from "@/components/providers/SessionProvider";
 import { CartProvider } from "@/contexts/CartContext";
+import { WishlistProvider } from "@/contexts/WishlistContext";
 import { cookies } from "next/headers";
 import { auth } from "@/lib/auth";
 import { abeezee, aclonica } from "@/lib/fonts";
@@ -150,7 +151,9 @@ export default async function RootLayout({
           >
             <SidebarProvider defaultOpen={defaultOpen}>
               <CartProvider>
-                {children}
+                <WishlistProvider>
+                  {children}
+                </WishlistProvider>
               </CartProvider>
             </SidebarProvider>
           </ThemeProvider>
